@@ -699,7 +699,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_irritation",
+        "emotion": "third_sister_irritation — закатывает глаза",
         "text": "Вселенная всё видит! Ты переродишься в навозного жука!"
       },
       {
@@ -709,7 +709,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Алёна? Какое чудо. Мы же не виделись с курса по осознанному ведению бизнеса."
       },
       {
@@ -729,12 +729,12 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Твой брат — козёл? Какая жестокая карма."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_irritation",
+        "emotion": "third_sister_irritation — закатывает глаза",
         "text": "У меня, однако, тоже вопрос. Почему вы топчете мои земли?"
       },
       {
@@ -744,7 +744,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_irritation",
+        "emotion": "third_sister_irritation — закатывает глаза",
         "text": "Иди с миром, дорогой. Я пустила тут корни уже давно!"
       },
       {
@@ -764,12 +764,12 @@
     "phrases": [
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Я уже выслала копию договора аренды тебе на телефон, Алёна."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Кощей, мы с этой землёй связаны уже 100 лет. Мы скрепили союз подписями."
       },
       {
@@ -794,7 +794,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_irritation",
+        "emotion": "third_sister_irritation — закатывает глаза",
         "text": "Наш контракт можно разорвать, если я за, а я против."
       },
       {
@@ -804,7 +804,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "На это я тоже не согласна. Мне здесь нравится энергетика."
       },
       {
@@ -834,17 +834,17 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Я умею ладить с людьми и легко удержу тут порядок."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Вселенная молвит, что мне нужно жить здесь бесплатно и помогать в бизнесе."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "И по законам изобилия меня следует кормить."
       },
       {
@@ -854,7 +854,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Мне хватит того, что я озвучила."
       },
       {
@@ -884,7 +884,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Хвала! Космос послал мне занятие! Раньше я тут за порядком следила от скуки."
       },
       {
@@ -894,7 +894,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "От комаров повесила. И ещё собиралась ротонду возвести для отдыха."
       },
       {
@@ -909,7 +909,7 @@
     "phrases": [
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Везде частички своего тепла оставляю."
       },
       {
@@ -929,12 +929,12 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "За эти годы во всём здании скопилось много моих вещей."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Нужна тележка, чтобы перевезти их в одно место."
       }
     ]
@@ -944,7 +944,7 @@
     "phrases": [
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Алёна, а ты не ходила на курс по открытию третьего глаза?"
       },
       {
@@ -954,7 +954,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Жаль, я надеялась узнать, что там было."
       },
       {
@@ -1049,12 +1049,12 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Без проблем! Устрою Ване курс духовного просветления."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Будет траву по цвету и запаху отличать."
       },
       {
@@ -1069,7 +1069,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Привет! Глазам своим не верю, сам Кощей! И без охраны!"
       },
       {
@@ -1079,17 +1079,17 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Класс! Давай сразу отбросим эту официальную шелуху."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Мне не интересны заготовленные ответы. Проведём интервью в прямом эфире."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Кощей без купюр привлечёт больше внимания и поднимет рейтинги."
       },
       {
@@ -1099,7 +1099,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "По рукам! Только стулья расставим. Помогайте!"
       }
     ]
@@ -1109,7 +1109,7 @@
     "phrases": [
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Это просто разрыв шаблона. Вы пришли ко мне сами, и мне не пришлось потеть."
       },
       {
@@ -1119,7 +1119,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_surprise",
+        "emotion": "journalist_surprise — удивлена",
         "text": "Подожди, разве не в старости нужно больше активности? Чтобы тупо выжить?"
       },
       {
@@ -1134,12 +1134,12 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Да ладно, я же любя. Чем ближе к гостю, тем сочнее контент."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Так, погнали дальше, для кадра нужен пресс-волл."
       }
     ]
@@ -1149,7 +1149,7 @@
     "phrases": [
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Кстати, открою тайну: часть слухов я сам придумал, чтобы раскачать лодку."
       },
       {
@@ -1164,12 +1164,12 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Полный улёт! Круто получить респект от профессионала."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Продолжаем... Такой свет — полная ерунда, где нормальные лампы?"
       }
     ]
@@ -1179,17 +1179,17 @@
     "phrases": [
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Теперь всё готово."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Позвать гримёров? Пусть плеснут на тебя румянами, а то ты бледный."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Зрители подумают, я тебя мариновал в коридоре пять часов перед мотором."
       },
       {
@@ -1199,7 +1199,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Супер, тогда погнали! Мы в эфире через три, две, одну..."
       }
     ]
@@ -1209,7 +1209,7 @@
     "phrases": [
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Начнём с главного. Кощей, ты бессмертен. И что дальше? В чём был план?"
       },
       {
@@ -1219,7 +1219,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_surprise",
+        "emotion": "journalist_surprise — удивлена",
         "text": "Нет, давай начистоту. Сколько дней ты выл в одиночестве из-за бессмертия?"
       },
       {
@@ -1229,7 +1229,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_surprise",
+        "emotion": "journalist_surprise — удивлена",
         "text": "Ну, смотри. Царевны от тебя сбегали. Ты никогда не чувствовал себя одиноким?"
       },
       {
@@ -1244,7 +1244,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Ребята, мы придём к вам после рекламной паузы."
       },
       {
@@ -1269,7 +1269,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Да! Нужна страсть и точность. Просто отвечай как идёт, не думай головой."
       },
       {
@@ -1279,7 +1279,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Лады! Это именно то, что нужно. Фактура пошла огненная."
       }
     ]
@@ -1289,7 +1289,7 @@
     "phrases": [
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "И напоследок. Ты коллекционируешь золото, поскольку оно лучший друг девушек?"
       },
       {
@@ -1299,7 +1299,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Народ, это был Кощей! Спасибо, что пришёл. Было дико интересно поболтать."
       },
       {
@@ -1309,7 +1309,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_surprise",
+        "emotion": "journalist_surprise — удивлена",
         "text": "Ну это же классика. С возрастом реально многое становится неинтересно."
       },
       {
@@ -1339,7 +1339,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Подожди, а что именно ты предлагаешь? Кощей сейчас реально всем интересен."
       },
       {
@@ -1349,7 +1349,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Слушай, это отличный вариант! Веди."
       }
     ]
@@ -1359,7 +1359,7 @@
     "phrases": [
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Итак, мы сейчас перед офисом Кощея. Скажи, что тут изменилось?"
       },
       {
@@ -1374,7 +1374,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_surprise",
+        "emotion": "journalist_surprise — удивлена",
         "text": "Значит, в копилку квартала добавилось новое знаковое место!"
       },
       {
@@ -1384,7 +1384,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_surprise",
+        "emotion": "journalist_surprise — удивлена",
         "text": "А здесь что сделали?"
       },
       {
@@ -1394,12 +1394,12 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Точно. Я тут на днях проезжал. Здание выглядело мёртвым."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Алёна, для тебя вопрос тоже есть. Как работается на злодея?"
       },
       {
@@ -1419,7 +1419,7 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Закончили! Видео уже залил в сеть."
       },
       {
@@ -1439,12 +1439,12 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Да. Мнение реально скачет по сто раз на дню."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Ну, удачи! Спасибо за контент, я побежал."
       },
       {
@@ -1459,7 +1459,7 @@
     "phrases": [
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Раньше мы с сёстрами много работали. Мои руки заставляли мир улыбаться."
       },
       {
@@ -1469,7 +1469,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Какая глубокая мысль."
       },
       {
@@ -1479,7 +1479,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Хотите пить? Скоро доставят автоматы с газировкой."
       },
       {
@@ -1564,7 +1564,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Мои руки заслуживают отдых. Много ещё дел?"
       },
       {
@@ -1599,7 +1599,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Я бы с радостью, но есть одна маленькая проблема."
       }
     ]
@@ -1609,12 +1609,12 @@
     "phrases": [
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Понимаешь, наши с сёстрами ауры разошлись, поэтому я живу отдельно."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "А они продолжают занимать наш фамильный ларец."
       },
       {
@@ -1624,12 +1624,12 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_sad",
+        "emotion": "third_sister_sad — грустный",
         "text": "Я уже сто лет хочу вернуть гармонию, и всё на это намекает, но поводов не было."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Ах! Мы так хорошо вместе работали. Правда, мои сестрицы с характером."
       },
       {
@@ -1639,7 +1639,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Отлично! Тогда я побежала мириться с сёстрами. Скоро буду!"
       }
     ]
@@ -1804,7 +1804,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Да! Мои сёстры ждут у офиса."
       },
       {
@@ -1829,12 +1829,12 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "В светлой голове Первой Сестрицы вместо бабочек летают формулы."
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_warm",
+        "emotion": "third_sister_warm — тепло, доброжелательно",
         "text": "Она всё просчитает, а потом заболтает так, что забудешь, зачем пришёл."
       },
       {
@@ -2039,22 +2039,22 @@
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Расслабься! Сегодня лайтовый режим, без провокаций."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_neutral",
+        "emotion": "journalist_neutral — нейтральный",
         "text": "Чисто осветить тему. Всё. Так что давайте зафиксируем момент на камеру."
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Супер! Еле успел добежать до таймера!"
       },
       {
         "name": "Андрей",
-        "emotion": "journalist_smile",
+        "emotion": "journalist_smile — улыбается",
         "text": "Кощей, а как тебе вечеринка?"
       },
       {
@@ -2154,7 +2154,7 @@
       },
       {
         "name": "Сестрица",
-        "emotion": "third_sister_neutral",
+        "emotion": "third_sister_neutral — нейтральный",
         "text": "Будет сделано!"
       },
       {

@@ -10,16 +10,19 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from dialogue_checker.yo import load_yo_dictionary, yoficate_text
-from dialogue_checker.emotion_descriptions import EMOTION_DESCRIPTIONS
 from dialogue_checker.morph_analyzer import text_exceptions
 
 DATA_DIR = PROJECT_ROOT / "data"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 CHARACTER_NAMES_PATH = DATA_DIR / "character_names.json"
+EMOTION_DESCRIPTIONS_PATH = DATA_DIR / "emotion_descriptions.json"
 UNKNOWN_CHARACTER_NAMES_PATH = REPORTS_DIR / "unknown_character_names.json"
 
 with open(CHARACTER_NAMES_PATH, "r", encoding="utf-8") as f:
     NAME_TO_PREFIX = json.load(f)
+
+with open(EMOTION_DESCRIPTIONS_PATH, "r", encoding="utf-8") as f:
+    EMOTION_DESCRIPTIONS = json.load(f)
 
 def prepare_conf_text(text: str) -> str:
     # Удаляем комментарии
@@ -1259,6 +1262,29 @@ else:
 
 print("\nN РУЧНАЯ ПРОВЕРКА: text С ПЕРСОНАЖЕМ И ЭМОЦИЕЙ")
 
+
+def suggest_emotion_description(emotion):
+    if not emotion or "_" not in emotion:
+        return ""
+
+    emotion_suffix = emotion.rsplit("_", 1)[-1]
+    descriptions = [
+        description
+        for known_emotion, description in EMOTION_DESCRIPTIONS.items()
+        if known_emotion.rsplit("_", 1)[-1] == emotion_suffix
+        and description
+    ]
+
+    if not descriptions:
+        return ""
+
+    unique_descriptions = sorted(set(descriptions))
+    return max(
+        unique_descriptions,
+        key=lambda description: descriptions.count(description),
+    )
+
+
 quest_texts_with_meta = []
 missing_emotions = set()
 
@@ -1302,4 +1328,10 @@ print(f"\tСохранено: {output_path}, проверяй через ней�
 if missing_emotions:
     print("\t- Нет описания для emotion:")
     for emotion in sorted(missing_emotions):
-        print(f'\t\t"{emotion}": "",')
+        suggested_description = suggest_emotion_description(emotion)
+        json_emotion = json.dumps(emotion, ensure_ascii=False)
+        json_description = json.dumps(
+            suggested_description,
+            ensure_ascii=False,
+        )
+        print(f"\t\t{json_emotion}: {json_description},")
