@@ -1,0 +1,129 @@
+{
+  "common": [
+    {
+      "word": "Воронар",
+      "gender": "masc",
+      "number": "sing"
+    },
+    {
+      "word": "Чернава",
+      "gender": "femn",
+      "number": "sing"
+    },
+    {
+      "word": "Чернавой",
+      "gender": "femn",
+      "number": "sing"
+    },
+    {
+      "word": "Баюшка",
+      "gender": "femn",
+      "number": "sing"
+    },
+    {
+      "word": "Систер",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Алёна",
+      "gender": "femn",
+      "number": "sing"
+    },
+    {
+      "word": "Ножницы",
+      "gender": null,
+      "number": "plur"
+    },
+    {
+      "word": "Прораб-козёл",
+      "gender": "masc",
+      "number": "sing"
+    },
+    {
+      "word": "Сквиш",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Игрушка-мялка",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "А-а-а",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Ха-ха-ха",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Ч-чернава",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Пу-пу-пу",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Блогер",
+      "gender": "masc",
+      "number": "sing"
+    },
+    {
+      "word": "диковин",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "отойдёте",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "поболта",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "погаси",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "пробудительные",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "пробудительный",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "роботу",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "рубка",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "скакать",
+      "gender": null,
+      "number": null
+    },
+    {
+      "word": "Фейкслав",
+      "gender": "masc",
+      "number": "sing"
+    }
+  ]
+}

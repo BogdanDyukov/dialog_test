@@ -1,0 +1,1222 @@
+from pathlib import Path
+import re
+import json
+import json5
+import requests
+from yo import load_yo_dictionary, yoficate_text
+from emotion_descriptions import EMOTION_DESCRIPTIONS
+from character_names import NAME_TO_PREFIX
+from morph_analyzer import text_exceptions
+
+def prepare_conf_text(text: str) -> str:
+    # Удаляем комментарии
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    text = re.sub(r"//.*", "", text)
+
+    # Удаляем шаблонные вставки вида <%VCLASSID(...)%>
+    text = re.sub(r"<%.*?%>", "", text, flags=re.DOTALL)
+
+    # Добавляем пропущенные запятые между полями
+    text = re.sub(
+        r'(".*?"|\d+|true|false|null|\]|\})\s*\n(\s*"[^"]+"\s*:)',
+        r'\1,\n\2',
+        text
+    )
+
+    # Убираем двойные запятые
+    text = re.sub(r",\s*,+", ",", text)
+
+    return text
+
+
+def load_quest_cutscene_ids(location_id: int) -> dict:
+    filename = f"{location_id:04d}.conf.js"
+    filepath = Path("/Users/bogdan.dyukov/merge2/configs/quests/0001_name") / filename
+
+    if not filepath.exists():
+        raise FileNotFoundError(f"Файл квестов не найден: {filepath}")
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        text = f.read()
+
+    text = prepare_conf_text(text)
+    data = json5.loads(text)
+
+    result = {}
+
+    for quest in data["quests"]:
+        cutscene = quest.get("cutscene")
+        quest_id = quest.get("id")
+
+        if cutscene and quest_id:
+            result[cutscene] = quest_id
+
+    return result
+
+
+def parse_cutscene_file(filepath: Path, cutscene_to_quest_id: dict):
+    with open(filepath, "r", encoding="utf-8") as f:
+        raw_text = f.read()
+
+    alias_match = re.search(
+        r"alias\s*=\s*(@cutscenes/[^\s*]+)",
+        raw_text
+    )
+
+    alias = alias_match.group(1) if alias_match else None
+    quest_id = cutscene_to_quest_id.get(alias)
+
+    text = prepare_conf_text(raw_text)
+    data = json5.loads(text)
+
+    dialogs = []
+
+    for sequence_item in data.get("sequence", []):
+
+        if "cue" not in sequence_item:
+            continue
+
+        dialog_block = []
+
+        for cue in sequence_item["cue"]:
+
+            if "text" not in cue:
+                continue
+
+            dialog_block.append({
+                "cue_type": cue.get("cue_type"),
+                "name": cue.get("name"),
+                "text": cue.get("text"),
+                "character": cue.get("character"),
+                "emotion": cue.get("emotion"),
+                "position": cue.get("position"),
+            })
+
+        if dialog_block:
+            dialogs.append(dialog_block)
+
+    return {
+        "id": quest_id,
+        "cutscene": alias,
+        "dialogs": dialogs
+    }
+
+
+n = int(input("Введите номер локации: "))
+
+cutscenes_dir = Path(
+    f"/Users/bogdan.dyukov/merge2/configs/cutscenes/{n:04d}"
+)
+
+if not cutscenes_dir.exists():
+    print(f"Папка не найдена: {cutscenes_dir}")
+    exit(1)
+
+cutscene_to_quest_id = load_quest_cutscene_ids(n)
+
+all_cutscenes = []
+
+for filepath in sorted(cutscenes_dir.glob("*.conf.js")):
+    try:
+        cutscene = parse_cutscene_file(
+            filepath,
+            cutscene_to_quest_id
+        )
+
+        all_cutscenes.append(cutscene)
+
+    except Exception as e:
+        print(f"{filepath.name}: ошибка парсинга ({e})")
+
+total_dialog_blocks = sum(len(c["dialogs"]) for c in all_cutscenes)
+total_cues = sum(
+    len(dialog)
+    for c in all_cutscenes
+    for dialog in c["dialogs"]
+)
+
+quest_numbers = {
+    cutscene["id"]: i
+    for i, cutscene in enumerate(all_cutscenes, start=0)
+}
+
+
+print(f"\nВсего катсцен: {len(all_cutscenes)}")
+print(f"Всего диалоговых блоков: {total_dialog_blocks}")
+print(f"Всего реплик: {total_cues}")
+
+
+
+
+
+print("\n--- ФАЙЛ С ДИАЛОГАМИ КАТСЦЕН ---")
+
+
+
+
+
+
+
+print("\n1.1 ОГРАНИЧЕНИЕ НА ЧИСЛО СИМВОЛОВ В СТРОКЕ (21/18 СИМВОЛОВ)")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            cue_type = cue.get("cue_type")
+            text = cue.get("text", "")
+
+            if cue_type == "SPECH_BUBLE":
+                limit = 21
+                cue_type_name = "фраза"
+            elif cue_type == "THOUGHT_BUBBLE":
+                limit = 18
+                cue_type_name = "мысль"
+            else:
+                continue
+
+            for line_index, line in enumerate(text.split("\n"), start=1):
+                if len(line) > limit:
+                    found = True
+                    print(
+                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                        f'реплика {cue_index}, строка {line_index}: '
+                        f'{cue_type_name} более {limit} символов — '
+                        f'{len(line)} символов: "{line}"'
+                    )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+print("\n1.2 ОГРАНИЧЕНИЕ НА ЧИСЛО СТРОК (4/3 СТРОКИ)")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            cue_type = cue.get("cue_type")
+            text = cue.get("text", "")
+
+            if cue_type == "SPECH_BUBLE":
+                limit = 4
+                cue_type_name = "фраза"
+            elif cue_type == "THOUGHT_BUBBLE":
+                limit = 3
+                cue_type_name = "мысль"
+            else:
+                continue
+
+            lines = text.split("\n")
+
+            if len(lines) > limit:
+                found = True
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: '
+                    f'{cue_type_name} содержит {len(lines)} строк '
+                    f'(лимит {limit})'
+                )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+print("\n1.3 ОГРАНИЧЕНИЕ НА ОБЩЕЕ ЧИСЛО СИМВОЛОВ (84/54 СИМВОЛА)")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            cue_type = cue.get("cue_type")
+            text = cue.get("text", "")
+
+            if cue_type == "SPECH_BUBLE":
+                limit = 84
+                cue_type_name = "фраза"
+            elif cue_type == "THOUGHT_BUBBLE":
+                limit = 54
+                cue_type_name = "мысль"
+            else:
+                continue
+
+            total_length = len(text.replace("\n", ""))
+
+            if total_length > limit:
+                found = True
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: '
+                    f'{cue_type_name} содержит {total_length} символов '
+                    f'(лимит {limit})'
+                )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+print("\n1.4 ОГРАНИЧЕНИЕ НА ЧИСЛО РЕПЛИК В ДИАЛОГЕ (ДО 20)")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+
+        replica_count = len(dialog)
+
+        if replica_count > 20:
+            found = True
+            print(
+                f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}: '
+                f'{replica_count} реплик (лимит 20)'
+            )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+
+
+
+
+
+
+print("\n2 ПУСТЫЕ cue_type, name, text, character, emotion, position")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+
+            empty_fields = []
+
+            for field in (
+                "cue_type",
+                "name",
+                "text",
+                "character",
+                "emotion",
+                "position"
+            ):
+                value = cue.get(field)
+
+                if value is None or value == "":
+                    empty_fields.append(field)
+
+            if empty_fields:
+                found = True
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: пустые поля: '
+                    f'{", ".join(empty_fields)}'
+                )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+
+
+
+
+
+print("\n3 ФОРМАТНЫЕ И ТЕКСТОВЫЕ ПРОБЛЕМЫ В text")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            text = cue.get("text", "")
+
+            issues = []
+
+            # Лишние пробелы по краям
+            if text != text.strip():
+                issues.append("пробелы/переносы в начале или конце")
+
+            # Лишние пробелы возле \n
+            if re.search(r"[ \t]+\n", text):
+                issues.append("пробелы перед \\n")
+
+            if re.search(r"\n[ \t]+", text):
+                issues.append("пробелы после \\n")
+
+            # Пробел перед знаком препинания
+            if re.search(r"\s+[,.!?;:]", text):
+                issues.append("пробел перед знаком препинания")
+
+            # Нет пробела после знака препинания
+            if re.search(r"[,.!?;:][А-Яа-яЁё]", text):
+                issues.append("нет пробела после знака препинания")
+
+            # Непарные кавычки
+            if text.count('"') % 2 != 0:
+                issues.append("непарные кавычки")
+
+            # Латиница
+            if re.search(r"[A-Za-z]", text):
+                issues.append("латиница")
+
+            if issues:
+                found = True
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: {", ".join(issues)}'
+                )
+
+                print(f'\t\t{text!r}')
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+
+print("\n4 НАЛИЧИЕ \\n, \\t И ПРОБЕЛОВ В name")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            name = cue.get("name", "")
+
+            issues = []
+
+            if "\n" in name:
+                issues.append(r"\n")
+
+            if "\t" in name:
+                issues.append(r"\t")
+
+            if name != name.strip():
+                issues.append("пробел в начале/конце")
+
+            if re.search(r" {2,}", name):
+                issues.append("два или более пробелов подряд")
+
+            if issues:
+                found = True
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: name={repr(name)} '
+                    f'содержит {", ".join(issues)}'
+                )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+
+
+
+
+print("\n5 НЕДОПУСТИМЫЕ СИМВОЛЫ В name")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            name = cue.get("name", "")
+
+            if name == "???" or name == "Робот?":
+                continue
+
+            if "\n" in name or "\t" in name:
+                continue
+
+            bad_chars = sorted(set(re.findall(r"[^А-Яа-яЁё ]", name)))
+
+            if bad_chars:
+                found = True
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: name={repr(name)} '
+                    f'содержит символы: '
+                    f'{", ".join(repr(c) for c in bad_chars)}'
+                )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+
+print("\n6 ПРОВЕРКА position")
+
+found = False
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        character_positions = {}
+        dialog_characters = {}
+
+        for cue_index, cue in enumerate(dialog, start=1):
+            name = cue.get("name")
+            character = cue.get("character")
+            position = cue.get("position")
+
+            if name == "Алёнка" and position != "LEFT":
+                found = True
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: Алёнка имеет position={position}, '
+                    f'ожидается LEFT'
+                )
+
+            if character not in character_positions:
+                character_positions[character] = position
+            elif character_positions[character] != position:
+                found = True
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}: персонаж {character} '
+                    f'сменил сторону {character_positions[character]} -> {position}'
+                )
+
+            dialog_characters.setdefault(character, set()).add(position)
+
+        if len(dialog_characters) > 1:
+            all_positions = set()
+
+            for positions in dialog_characters.values():
+                all_positions.update(positions)
+
+            if len(all_positions) == 1:
+                found = True
+
+                only_position = next(iter(all_positions))
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}: '
+                    f'все персонажи стоят на одной стороне ({only_position})'
+                )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+
+
+print("\n7 НАЛИЧИЕ ОРФОГРАФИЧЕСКИХ ОШИБОК В text (ЯНДЕКС СПЕЛЛЕР)")
+
+found = False
+
+spell_texts = []
+spell_mapping = []
+wrong_words = set()
+report_lines = []
+
+output_path = Path(f"yandex_errors.txt")
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+
+            text = (
+                cue.get("text", "")
+                   .replace("\n", " ")
+                   .strip()
+            )
+
+            spell_texts.append(text)
+
+            spell_mapping.append({
+                "quest_id": quest_id,
+                "dialog_index": dialog_index,
+                "cue_index": cue_index,
+                "original_text": cue.get("text", "")
+            })
+
+BATCH_SIZE = 100
+
+for start in range(0, len(spell_texts), BATCH_SIZE):
+    batch_texts = spell_texts[start:start + BATCH_SIZE]
+    batch_mapping = spell_mapping[start:start + BATCH_SIZE]
+
+    response = requests.post(
+        "https://speller.yandex.net/services/spellservice.json/checkTexts",
+        data={
+            "text": batch_texts,
+            "lang": "ru",
+            "format": "plain",
+        },
+        timeout=30
+    )
+
+    response.raise_for_status()
+
+    spell_results = response.json()
+
+    for info, errors in zip(batch_mapping, spell_results):
+        errors = [
+            error for error in errors
+            if error.get("word", "").lower() not in text_exceptions
+        ]
+
+        if not errors:
+            continue
+
+        found = True
+
+        report_lines.append(
+            f'\n\t- Квест {quest_numbers[info["quest_id"]]} (id={info["quest_id"]}), '
+            f'диалог {info["dialog_index"]}, '
+            f'реплика {info["cue_index"]}'
+        )
+
+        report_lines.append(f'\t\t{info["original_text"]!r}')
+
+        for error in errors:
+            word = error.get("word")
+            suggestions = error.get("s", [])
+
+            if word:
+                wrong_words.add(word)
+
+            if suggestions:
+                report_lines.append(f'\t\t{word} -> {", ".join(suggestions)}')
+            else:
+                report_lines.append(f'\t\t{word} -> нет подсказок')
+
+if not found:
+    print("\t- Не найдено")
+    report_lines.append("\t- Не найдено")
+else:
+    sorted_wrong_words = sorted(wrong_words, key=str.casefold)
+
+    print("\n\t- " + ", ".join(sorted_wrong_words))
+
+    report_lines.append("\n\n--- СЛОВА ДЛЯ ДОБАВЛЕНИЯ В spell_exceptions.json ---\n")
+
+    for word in sorted_wrong_words:
+        report_lines.append("    {")
+        report_lines.append(f'      "word": "{word}",')
+        report_lines.append('      "gender": null,')
+        report_lines.append('      "number": null')
+        report_lines.append("    },")
+
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(report_lines))
+
+print(f"\n\tПолный отчёт сохранён: {output_path}")
+
+
+
+# print("\n7 НАЛИЧИЕ ОРФОГРАФИЧЕСКИХ ОШИБОК В text (LANGUAGETOOL)")
+
+# found = False
+
+# spell_texts = []
+# spell_mapping = []
+
+# BATCH_SIZE = 100
+# SEPARATOR = "\n\n===LT_SPLIT===\n\n"
+
+
+# def normalize_languagetool_word(value):
+#     return "".join(value.casefold().split())
+
+
+# for cutscene in all_cutscenes:
+#     quest_id = cutscene["id"]
+
+#     for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+#         for cue_index, cue in enumerate(dialog, start=1):
+#             original_text = cue.get("text", "")
+#             text = re.sub(r"\s+", " ", original_text).strip()
+
+#             spell_texts.append(text)
+
+#             spell_mapping.append({
+#                 "quest_id": quest_id,
+#                 "dialog_index": dialog_index,
+#                 "cue_index": cue_index,
+#                 "original_text": original_text,
+#             })
+
+
+# for start in range(0, len(spell_texts), BATCH_SIZE):
+#     batch_texts = spell_texts[start:start + BATCH_SIZE]
+#     batch_mapping = spell_mapping[start:start + BATCH_SIZE]
+
+#     batch_text = SEPARATOR.join(batch_texts)
+
+#     response = requests.post(
+#         "https://api.languagetool.org/v2/check",
+#         data={
+#             "text": batch_text,
+#             "language": "ru-RU",
+#         },
+#         timeout=30
+#     )
+
+#     response.raise_for_status()
+#     result = response.json()
+
+#     offsets = []
+#     current_offset = 0
+
+#     for text in batch_texts:
+#         offsets.append(current_offset)
+#         current_offset += len(text) + len(SEPARATOR)
+
+#     batch_errors = [[] for _ in batch_texts]
+
+#     for match in result.get("matches", []):
+#         match_offset = match["offset"]
+
+#         text_index = None
+
+#         for i, start_offset in enumerate(offsets):
+#             end_offset = start_offset + len(batch_texts[i])
+
+#             if start_offset <= match_offset < end_offset:
+#                 text_index = i
+#                 break
+
+#         if text_index is None:
+#             continue
+
+#         local_offset = match_offset - offsets[text_index]
+#         source_text = batch_texts[text_index]
+
+#         word = source_text[
+#             local_offset:local_offset + match["length"]
+#         ]
+
+#         replacements = [
+#             r["value"]
+#             for r in match.get("replacements", [])
+#         ]
+
+#         if word.casefold() in text_exceptions:
+#             continue
+
+#         if any(
+#             normalize_languagetool_word(word) == normalize_languagetool_word(replacement)
+#             for replacement in replacements
+#         ):
+#             continue
+
+#         batch_errors[text_index].append({
+#             "word": word,
+#             "rule": match.get("rule", {}).get("id"),
+#             "category": match.get("rule", {}).get("category", {}).get("name"),
+#             "message": match.get("message"),
+#             "suggestions": replacements,
+#         })
+
+#     for info, errors in zip(batch_mapping, batch_errors):
+#         if not errors:
+#             continue
+
+#         found = True
+
+#         print(
+#             f'\n\t- Квест {quest_numbers[info["quest_id"]]} (id={info["quest_id"]}), '
+#             f'диалог {info["dialog_index"]}, '
+#             f'реплика {info["cue_index"]}'
+#         )
+
+#         print(f'\t\t{info["original_text"]!r}')
+
+#         for error in errors:
+#             print(
+#                 f'\t\tСлово: {error["word"]}\n'
+#                 f'\t\tПравило: {error["rule"]}\n\t\tКатегория: {error["category"]}]'
+#             )
+#             print(f'\t\tСообщение: {error["message"]}')
+
+#             suggestions = error["suggestions"][:10]
+
+#             if suggestions:
+#                 suffix = "..." if len(error["suggestions"]) > 10 else ""
+#                 print(f'\t\tПодсказки: {", ".join(suggestions)}{suffix}')
+#             else:
+#                 print("\t\tПодсказки: нет")
+            
+#             print()
+
+# if not found:
+#     print("\t- Не найдено")
+
+
+
+
+
+
+print("\n8 НАЛИЧИЕ 'Е' ВМЕСТО 'Ё' В name И text (ПРОГОН ЧЕРЕЗ ЁТИФИКАТОР)")
+
+found = False
+
+yo_dictionary = load_yo_dictionary("yo.dat")
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+
+            name = cue.get("name", "")
+            yoficated_name = yoficate_text(name, yo_dictionary)
+
+            if name != yoficated_name:
+                found = True
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}, name: '
+                    f'"{name}" -> "{yoficated_name}"'
+                )
+
+            text = cue.get("text", "")
+            yoficated_text = yoficate_text(text, yo_dictionary)
+
+            if text != yoficated_text:
+                found = True
+
+                print(
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                    f'реплика {cue_index}, text:'
+                )
+
+                print(f'\t\t{text!r}')
+                print(f'\t\t↓')
+                print(f'\t\t{yoficated_text!r}')
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+from alena_skins import get_allowed_alena_skins
+
+print("\n12 ПРОВЕРКА СКИНА АЛЁНКИ В character (ДИАЛОГИ)")
+
+found = False
+
+allowed_skins = get_allowed_alena_skins(n)
+
+if allowed_skins is None:
+    found = True
+    print(f"\t- Для локации {n} не заданы допустимые скины Алёнки")
+else:
+    used_skins = set()
+
+    for cutscene in all_cutscenes:
+        quest_id = cutscene["id"]
+
+        for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+            for cue_index, cue in enumerate(dialog, start=1):
+
+                character = cue.get("character", "")
+
+                if not character.startswith("@character/alena_"):
+                    continue
+
+                if character in allowed_skins:
+                    used_skins.add(character)
+                else:
+                    found = True
+
+                    print(
+                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                        f'реплика {cue_index}: недопустимый скин '
+                        f'"{character}" '
+                        f'(допустимо: {", ".join(sorted(allowed_skins))})'
+                    )
+
+    missing_skins = allowed_skins - used_skins
+
+    for skin in sorted(missing_skins):
+        found = True
+
+        print(
+            f'\t- В диалогах локации {n} не встретился '
+            f'обязательный скин "{skin}"'
+        )
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+print("\n13 НЕСООТВЕТСТВИЕ name, character И emotion")
+
+UNKNOWN_NAME = "???"
+
+def get_character_prefix(character):
+    if not character.startswith("@character/"):
+        return None
+
+    character_id = character.replace("@character/", "")
+
+    # Алёнка имеет несколько скинов
+    if character_id.startswith("alena_"):
+        return "alena"
+
+    # Иванушка может быть человеком и козлёнком
+    if character_id.startswith("kozlenok_ivan"):
+        return "kozlenok"
+
+    if character_id == "kozlenok":
+        return "kozlenok"
+
+    return character_id.split("_")[0]
+
+
+def get_character_prefix(character):
+    if not character.startswith("@character/"):
+        return None
+
+    character_id = character.replace("@character/", "")
+
+    # Алёнка имеет несколько скинов
+    if character_id.startswith("alena_"):
+        return "alena"
+
+    # Иванушка может быть человеком и козлёнком
+    if character_id.startswith("kozlenok_"):
+        return "kozlenok"
+
+    return character_id.split("_")[0]
+
+
+def get_emotion_prefix(emotion):
+    if not emotion:
+        return None
+
+    if emotion.startswith("kozlenok_"):
+        return "kozlenok"
+
+    return emotion.split("_")[0]
+
+
+found = False
+
+unknown_names = {}
+
+for cutscene in all_cutscenes:
+    for dialog in cutscene["dialogs"]:
+        for cue in dialog:
+            name = cue.get("name", "")
+            if name == UNKNOWN_NAME:
+                continue
+
+            if name not in NAME_TO_PREFIX:
+                unknown_names.setdefault(name, []).append(
+                {
+                    "cutscene": cutscene.get("id"),
+                    "character": cue.get("character"),
+                    "emotion": cue.get("emotion"),
+                    "text": cue.get("text"),
+                }
+            )
+
+if unknown_names:
+    found = True
+
+    print("\tНет соответствия для следующих name:")
+
+    for name, entries in sorted(unknown_names.items()):
+        characters = sorted({
+            entry["character"]
+            for entry in entries
+        })
+
+        print(f'\n\t"{name}" {" ".join(characters)}')
+
+else:
+    for cutscene in all_cutscenes:
+        quest_id = cutscene["id"]
+
+        for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+            for cue_index, cue in enumerate(dialog, start=1):
+
+                name = cue.get("name", "")
+                character = cue.get("character", "")
+                emotion = cue.get("emotion", "")
+
+                name_prefix = None if name == UNKNOWN_NAME else NAME_TO_PREFIX.get(name)
+                character_prefix = get_character_prefix(character)
+                emotion_prefix = get_emotion_prefix(emotion)
+
+                issues = []
+
+                if character_prefix is None:
+                    issues.append(f'не удалось разобрать character="{character}"')
+
+                if emotion_prefix is None:
+                    issues.append(f'не удалось разобрать emotion="{emotion}"')
+
+                if name_prefix is not None and character_prefix is not None and name_prefix != character_prefix:
+                    issues.append(f'name/character: {name_prefix} != {character_prefix}')
+
+                if name_prefix is not None and emotion_prefix is not None and name_prefix != emotion_prefix:
+                    issues.append(f'name/emotion: {name_prefix} != {emotion_prefix}')
+
+                if character_prefix is not None and emotion_prefix is not None and character_prefix != emotion_prefix:
+                    issues.append(f'character/emotion: {character_prefix} != {emotion_prefix}')
+
+                if issues:
+                    found = True
+
+                    print(
+                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
+                        f'реплика {cue_index}: {", ".join(issues)}'
+                    )
+
+                    print(f'\t\tname="{name}" -> {name_prefix}')
+                    print(f'\t\tcharacter="{character}" -> {character_prefix}')
+                    print(f'\t\temotion="{emotion}" -> {emotion_prefix}')
+
+if not found:
+    print("\t- Не найдено")
+
+
+
+
+
+
+
+print("\nN РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА МЫСЛЕЙ")
+
+thought_dialogs = []
+
+for cutscene in all_cutscenes:
+    texts = []
+    has_thought = False
+
+    for dialog in cutscene["dialogs"]:
+        for cue in dialog:
+            text = cue.get("text", "").replace("\n", " ")
+
+            if cue.get("cue_type") == "THOUGHT_BUBBLE":
+                has_thought = True
+                text = f'(МЫСЛЬ) "{text}"'
+
+            texts.append(text)
+
+    if has_thought:
+        thought_dialogs.append({
+            "id": cutscene["id"],
+            "texts": texts
+        })
+
+output_path = Path(f"cutscenes_thoughts.json")
+
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(
+        thought_dialogs,
+        f,
+        ensure_ascii=False,
+        indent=2
+    )
+
+print(f"\tСохранено: {output_path}, проверяй оформление мыслей через нейронку")
+
+
+
+
+
+
+
+print("\nN РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА НА ПУНКТУАЦИЮ ВСЕХ text")
+
+MAX_REPLICAS_PER_FILE = 340
+
+files = []
+current_quest_texts = []
+current_replica_count = 0
+file_index = 1
+
+for cutscene in all_cutscenes:
+    texts = []
+
+    for dialog in cutscene["dialogs"]:
+        for cue in dialog:
+            texts.append(
+                cue.get("text", "").replace("\n", " ")
+            )
+
+    quest_block = {
+        "id": cutscene["id"],
+        "texts": texts
+    }
+
+    replica_count = len(texts)
+
+    if (
+        current_quest_texts
+        and current_replica_count + replica_count > MAX_REPLICAS_PER_FILE
+    ):
+        output_path = Path(f"cutscenes_texts_part_{file_index}.json")
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(
+                current_quest_texts,
+                f,
+                ensure_ascii=False,
+                indent=2
+            )
+
+        files.append(output_path)
+
+        file_index += 1
+        current_quest_texts = []
+        current_replica_count = 0
+
+    current_quest_texts.append(quest_block)
+    current_replica_count += replica_count
+
+if current_quest_texts:
+    output_path = Path(f"cutscenes_texts_part_{file_index}.json")
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(
+            current_quest_texts,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    files.append(output_path)
+
+if len(files) == 1:
+    print(f"\tСохранено: {files[0]}, проверяй через нейронку на пунктуацию и неуместные символы")
+else:
+    print(f"\tСохранено файлов: {len(files)}")
+    for path in files:
+        print(f"\t- {path}")
+
+
+
+
+
+
+
+
+print("\nN РУЧНАЯ ПРОВЕРКА: text С ПЕРСОНАЖЕМ И ЭМОЦИЕЙ")
+
+quest_texts_with_meta = []
+missing_emotions = set()
+
+for cutscene in all_cutscenes:
+    phrases = []
+
+    for dialog in cutscene["dialogs"]:
+        for cue in dialog:
+            emotion = cue.get("emotion", "")
+            emotion_description = EMOTION_DESCRIPTIONS.get(emotion)
+
+            if emotion_description is None:
+                missing_emotions.add(emotion)
+                emotion_with_description = emotion
+            else:
+                emotion_with_description = f"{emotion} — {emotion_description}"
+
+            phrases.append({
+                "name": cue.get("name", ""),
+                "emotion": emotion_with_description,
+                "text": cue.get("text", "").replace("\n", " ")
+            })
+
+    quest_texts_with_meta.append({
+        "id": cutscene["id"],
+        "phrases": phrases
+    })
+
+output_path = Path(f"cutscenes_texts_with_meta.json")
+
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(
+        quest_texts_with_meta,
+        f,
+        ensure_ascii=False,
+        indent=2
+    )
+
+print(f"\tСохранено: {output_path}, проверяй через нейронку на соответствие эмоции и реплики")
+
+if missing_emotions:
+    print("\t- Нет описания для emotion:")
+    for emotion in sorted(missing_emotions):
+        print(f'\t\t"{emotion}": "",')
