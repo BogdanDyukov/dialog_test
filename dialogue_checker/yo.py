@@ -25,11 +25,11 @@ def load_yo_dictionary(dictionary_path=DEFAULT_DICTIONARY_PATH):
             if "|" in sline:
                 for ss in sline.split("|"):
                     value = bline + ss
-                    key = value.replace("ё", "е")
+                    key = value.replace("ё", "е").lower()
                     dictionary[key] = value
             else:
                 value = bline
-                key = value.replace("ё", "е")
+                key = value.replace("ё", "е").lower()
                 dictionary[key] = value
 
     return dictionary
@@ -42,6 +42,6 @@ def yoficate_text(text, dictionary):
     result = []
 
     for token in tokens:
-        result.append(dictionary.get(token, token))
+        result.append(dictionary.get(token.lower(), token))
 
     return "".join(result)

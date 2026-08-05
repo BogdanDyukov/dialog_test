@@ -13,7 +13,10 @@ if str(PROJECT_ROOT) not in sys.path:
 from dialogue_checker.yo import load_yo_dictionary, yoficate_text
 import requests
 from pymorphy3 import MorphAnalyzer
-from dialogue_checker.alena_skins import ALENA_SKINS, LOCATION_ALENA_SKINS, get_allowed_alena_skins
+from dialogue_checker.alena_skins import (
+    ALENA_SKINS,
+    get_expected_alena_skin_sequence,
+)
 from dialogue_checker.morph_analyzer import title_exceptions
 
 DATA_DIR = PROJECT_ROOT / "data"
@@ -102,18 +105,44 @@ if not found:
     print("\t- Не найдено")
 
 
+print("\n2 КОРРЕКТНОСТЬ price_money")
+
+found = False
+
+for quest in quests:
+    price_money = quest.get("price_money")
+
+    # Отсутствующее значение уже выводится в проверке пустых полей.
+    if price_money is None:
+        continue
+
+    if (
+        isinstance(price_money, bool)
+        or not isinstance(price_money, int)
+        or price_money <= 0
+    ):
+        found = True
+        print(
+            f'\t- Квест {quest["id"]}: price_money={price_money!r}; '
+            "ожидалось целое число больше нуля"
+        )
+
+if not found:
+    print("\t- Не найдено")
 
 
 
 
-print("\n2 НАЛИЧИЕ НЕДОПУСТИМЫХ СИМВОЛОВ В title")
+
+
+print("\n3 НАЛИЧИЕ НЕДОПУСТИМЫХ СИМВОЛОВ В title")
 
 found = False
 
 for quest in quests:
     title = quest.get("title", "")
 
-    bad_chars = sorted(set(re.findall(r"[^А-Яа-яЁё ]", title)))
+    bad_chars = sorted(set(re.findall(r"[^А-Яа-яЁё !?\-]", title)))
 
     if bad_chars:
         found = True
@@ -128,8 +157,43 @@ if not found:
 
 
 
+print("\n4 ПРОВЕРКА ОФОРМЛЕНИЯ title")
+
+found = False
+
+for quest in quests:
+    title = quest.get("title", "")
+    errors = []
+
+    if title != title.strip():
+        errors.append("пробел в начале или конце")
+
+    if "  " in title:
+        errors.append("двойной пробел")
+
+    if re.search(r"(?<![А-Яа-яЁё])-|-(?![А-Яа-яЁё])", title):
+        errors.append(
+            "дефис должен находиться между русскими буквами без пробелов"
+        )
+
+    if re.search(r"[!?](?![!?]*$)", title):
+        errors.append(
+            "восклицательный или вопросительный знак находится не в конце"
+        )
+
+    if errors:
+        found = True
+        print(f'\t- Квест {quest["id"]}: title={title!r}')
+
+        for error in errors:
+            print(f"\t\t- {error}")
+
+if not found:
+    print("\t- Не найдено")
+
+
 # https://github.com/Text-extend-tools/python-yoficator/blob/master/yo.dat
-print("\n3 НАЛИЧИЕ 'Е' ВМЕСТО 'Ë' В title (ËТИФИКАТОР)")
+print("\n5 НАЛИЧИЕ 'Е' ВМЕСТО 'Ë' В title (ËТИФИКАТОР)")
 
 found = False
 
@@ -153,7 +217,7 @@ if not found:
 
 
 
-print("\n4 НАЛИЧИЕ 'ВСЕ' ИЛИ 'ВСЁ' В title (РУЧНАЯ ПРОВЕРКА)")
+print("\n6 НАЛИЧИЕ 'ВСЕ' ИЛИ 'ВСЁ' В title (РУЧНАЯ ПРОВЕРКА)")
 
 found = False
 
@@ -168,25 +232,7 @@ if not found:
     print("\t- Не найдено")
 
 
-print("\n5 НАЛИЧИЕ БУКВЫ 'Ё' В title (РУЧНАЯ ПРОВЕРКА)")
-
-found = False
-
-for quest in quests:
-    title = quest["title"]
-
-    if "ё" in title.lower():
-        found = True
-        print(f'\t- Квест {quest["id"]}: "{title}"')
-
-if not found:
-    print("\t- Не найдено")
-
-
-
-
-
-print("\n6 ОТСУТСТВИЕ @item/stock/xp СО ЗНАЧЕНИЕМ 15")
+print("\n7 ОТСУТСТВИЕ @item/stock/xp СО ЗНАЧЕНИЕМ 15")
 
 found = False
 
@@ -215,40 +261,55 @@ if not found:
 
 
 # https://docs.google.com/spreadsheets/d/1JCbNlZfGQZyrjahTiBKXEylgyg-k2jt-Tzp6qgejdqY/edit?gid=647621717#gid=647621717
-print("\n7 ПРОВЕРКА СКИНА АЛЁНКИ В character")
+print("\n8 ПРОВЕРКА ПОРЯДКА СКИНОВ АЛЁНКИ В character")
 
 found = False
 
-allowed_skins = get_allowed_alena_skins(n)
+expected_sequence = get_expected_alena_skin_sequence(n)
 
-if allowed_skins is None:
+if expected_sequence is None:
     found = True
-    print(f"\t- Для локации {n} не заданы допустимые скины")
+    print(f"\t- Для локации {n} не задан порядок скинов Алёнки")
 else:
-    used_skins = set()
+    known_skins = set(ALENA_SKINS.values())
+    actual_sequence = []
+    transition_quests = []
 
     for quest in quests:
         character = quest.get("character", "")
 
-        if not character.startswith("@character/alena_"):
+        if not character.startswith("@character/alena"):
             continue
 
-        if character in allowed_skins:
-            used_skins.add(character)
-        else:
+        if character not in known_skins:
             found = True
             print(
-                f'\t- Квест {quest["id"]}: недопустимый скин character="{character}", '
-                f'допустимо: {", ".join(sorted(allowed_skins))}'
+                f'\t- Квест {quest["id"]}: неизвестный скин '
+                f'Алёнки character="{character}"'
             )
+            continue
 
-    missing_skins = allowed_skins - used_skins
+        if not actual_sequence or actual_sequence[-1] != character:
+            actual_sequence.append(character)
+            transition_quests.append(quest["id"])
 
-    for skin in sorted(missing_skins):
+    actual_sequence = tuple(actual_sequence)
+
+    if actual_sequence != expected_sequence:
         found = True
-        print(
-            f'\t- В локации {n} не встретился обязательный скин "{skin}"'
-        )
+
+        expected_text = " → ".join(expected_sequence)
+        actual_text = " → ".join(actual_sequence) or "скины не встретились"
+
+        print("\t- Нарушен порядок скинов Алёнки")
+        print(f"\t\tОжидался: {expected_text}")
+        print(f"\t\tПолучен:  {actual_text}")
+
+        if transition_quests:
+            print(
+                "\t\tСмена скинов в квестах: "
+                + ", ".join(map(str, transition_quests))
+            )
 
 if not found:
     print("\t- Не найдено")
@@ -261,7 +322,7 @@ if not found:
 
 
 
-print("\n8 НАЛИЧИЕ ОРФОГРАФИЧЕСКИХ ОШИБОК В title (ЯНДЕКС СПЕЛЛЕР)")
+print("\n9 НАЛИЧИЕ ОРФОГРАФИЧЕСКИХ ОШИБОК В title (ЯНДЕКС СПЕЛЛЕР)")
 
 found = False
 

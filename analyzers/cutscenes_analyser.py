@@ -872,19 +872,24 @@ if not found:
 
 
 
-from dialogue_checker.alena_skins import get_allowed_alena_skins
+from dialogue_checker.alena_skins import (
+    ALENA_SKINS,
+    get_expected_alena_skin_sequence,
+)
 
-print("\n12 ПРОВЕРКА СКИНА АЛЁНКИ В character (ДИАЛОГИ)")
+print("\n12 ПРОВЕРКА ПОРЯДКА СКИНОВ АЛЁНКИ В character (ДИАЛОГИ)")
 
 found = False
 
-allowed_skins = get_allowed_alena_skins(n)
+expected_sequence = get_expected_alena_skin_sequence(n)
 
-if allowed_skins is None:
+if expected_sequence is None:
     found = True
-    print(f"\t- Для локации {n} не заданы допустимые скины Алёнки")
+    print(f"\t- Для локации {n} не задан порядок скинов Алёнки")
 else:
-    used_skins = set()
+    known_skins = set(ALENA_SKINS.values())
+    actual_sequence = []
+    transitions = []
 
     for cutscene in all_cutscenes:
         quest_id = cutscene["id"]
@@ -894,30 +899,50 @@ else:
 
                 character = cue.get("character", "")
 
-                if not character.startswith("@character/alena_"):
+                if not character.startswith("@character/alena"):
                     continue
 
-                if character in allowed_skins:
-                    used_skins.add(character)
-                else:
+                if character not in known_skins:
                     found = True
-
                     print(
                         f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                        f'реплика {cue_index}: недопустимый скин '
-                        f'"{character}" '
-                        f'(допустимо: {", ".join(sorted(allowed_skins))})'
+                        f'реплика {cue_index}: неизвестный скин Алёнки '
+                        f'character="{character}"'
                     )
+                    continue
 
-    missing_skins = allowed_skins - used_skins
+                if not actual_sequence or actual_sequence[-1] != character:
+                    actual_sequence.append(character)
+                    transitions.append({
+                        "quest_id": quest_id,
+                        "dialog_index": dialog_index,
+                        "cue_index": cue_index,
+                        "character": character,
+                    })
 
-    for skin in sorted(missing_skins):
+    actual_sequence = tuple(actual_sequence)
+
+    if actual_sequence != expected_sequence:
         found = True
 
-        print(
-            f'\t- В диалогах локации {n} не встретился '
-            f'обязательный скин "{skin}"'
-        )
+        expected_text = " → ".join(expected_sequence)
+        actual_text = " → ".join(actual_sequence) or "скины не встретились"
+
+        print("\t- Нарушен порядок скинов Алёнки")
+        print(f"\t\tОжидался: {expected_text}")
+        print(f"\t\tПолучен:  {actual_text}")
+
+        if transitions:
+            print("\t\tСмена скинов:")
+
+            for transition in transitions:
+                quest_id = transition["quest_id"]
+                print(
+                    f'\t\t- Квест {quest_numbers[quest_id]} (id={quest_id}), '
+                    f'диалог {transition["dialog_index"]}, '
+                    f'реплика {transition["cue_index"]}: '
+                    f'{transition["character"]}'
+                )
 
 if not found:
     print("\t- Не найдено")
