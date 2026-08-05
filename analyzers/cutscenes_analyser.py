@@ -11,11 +11,15 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from dialogue_checker.yo import load_yo_dictionary, yoficate_text
 from dialogue_checker.emotion_descriptions import EMOTION_DESCRIPTIONS
-from dialogue_checker.character_names import NAME_TO_PREFIX
 from dialogue_checker.morph_analyzer import text_exceptions
 
 DATA_DIR = PROJECT_ROOT / "data"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+CHARACTER_NAMES_PATH = DATA_DIR / "character_names.json"
+UNKNOWN_CHARACTER_NAMES_PATH = REPORTS_DIR / "unknown_character_names.json"
+
+with open(CHARACTER_NAMES_PATH, "r", encoding="utf-8") as f:
+    NAME_TO_PREFIX = json.load(f)
 
 def prepare_conf_text(text: str) -> str:
     # Удаляем комментарии
@@ -968,26 +972,6 @@ def get_character_prefix(character):
         return "alena"
 
     # Иванушка может быть человеком и козлёнком
-    if character_id.startswith("kozlenok_ivan"):
-        return "kozlenok"
-
-    if character_id == "kozlenok":
-        return "kozlenok"
-
-    return character_id.split("_")[0]
-
-
-def get_character_prefix(character):
-    if not character.startswith("@character/"):
-        return None
-
-    character_id = character.replace("@character/", "")
-
-    # Алёнка имеет несколько скинов
-    if character_id.startswith("alena_"):
-        return "alena"
-
-    # Иванушка может быть человеком и козлёнком
     if character_id.startswith("kozlenok_"):
         return "kozlenok"
 
@@ -998,10 +982,18 @@ def get_emotion_prefix(emotion):
     if not emotion:
         return None
 
-    if emotion.startswith("kozlenok_"):
-        return "kozlenok"
+    if "_" not in emotion:
+        return emotion
 
-    return emotion.split("_")[0]
+    return emotion.rsplit("_", 1)[0]
+
+
+def prefixes_match(left, right):
+    return (
+        left == right
+        or left.startswith(f"{right}_")
+        or right.startswith(f"{left}_")
+    )
 
 
 found = False
@@ -1027,16 +1019,73 @@ for cutscene in all_cutscenes:
 
 if unknown_names:
     found = True
+    new_candidates = {}
 
     print("\tНет соответствия для следующих name:")
+    print("\tОднозначные кандидаты для character_names.json:")
 
     for name, entries in sorted(unknown_names.items()):
         characters = sorted({
             entry["character"]
             for entry in entries
+            if entry["character"]
         })
+        emotions = sorted({
+            entry["emotion"]
+            for entry in entries
+            if entry["emotion"]
+        })
+        prefixes = {
+            get_emotion_prefix(emotion)
+            for emotion in emotions
+        }
+        prefixes.discard(None)
 
-        print(f'\n\t"{name}" {" ".join(characters)}')
+        if not prefixes:
+            prefixes = {
+                get_character_prefix(character)
+                for character in characters
+            }
+            prefixes.discard(None)
+
+        suggested_prefix = next(iter(prefixes)) if len(prefixes) == 1 else None
+
+        if suggested_prefix is not None:
+            json_name = json.dumps(name, ensure_ascii=False)
+            json_prefix = json.dumps(suggested_prefix, ensure_ascii=False)
+            print(f"\t{json_name}: {json_prefix},")
+        else:
+            print(f'\t"{name}": null,')
+            print(
+                "\t\tПрефикс не определён однозначно; "
+                f'characters: {", ".join(characters) or "не указаны"}'
+            )
+
+        new_candidates[name] = {
+            "suggested_prefix": suggested_prefix,
+            "characters": characters,
+            "emotions": emotions,
+        }
+
+    if UNKNOWN_CHARACTER_NAMES_PATH.exists():
+        with open(UNKNOWN_CHARACTER_NAMES_PATH, "r", encoding="utf-8") as f:
+            saved_candidates = json.load(f)
+    else:
+        saved_candidates = {}
+
+    saved_candidates.update(new_candidates)
+
+    with open(UNKNOWN_CHARACTER_NAMES_PATH, "w", encoding="utf-8") as f:
+        json.dump(
+            saved_candidates,
+            f,
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        f.write("\n")
+
+    print(f"\n\tКандидаты сохранены в {UNKNOWN_CHARACTER_NAMES_PATH}")
 
 else:
     for cutscene in all_cutscenes:
@@ -1061,13 +1110,13 @@ else:
                 if emotion_prefix is None:
                     issues.append(f'не удалось разобрать emotion="{emotion}"')
 
-                if name_prefix is not None and character_prefix is not None and name_prefix != character_prefix:
+                if name_prefix is not None and character_prefix is not None and not prefixes_match(name_prefix, character_prefix):
                     issues.append(f'name/character: {name_prefix} != {character_prefix}')
 
-                if name_prefix is not None and emotion_prefix is not None and name_prefix != emotion_prefix:
+                if name_prefix is not None and emotion_prefix is not None and not prefixes_match(name_prefix, emotion_prefix):
                     issues.append(f'name/emotion: {name_prefix} != {emotion_prefix}')
 
-                if character_prefix is not None and emotion_prefix is not None and character_prefix != emotion_prefix:
+                if character_prefix is not None and emotion_prefix is not None and not prefixes_match(character_prefix, emotion_prefix):
                     issues.append(f'character/emotion: {character_prefix} != {emotion_prefix}')
 
                 if issues:
