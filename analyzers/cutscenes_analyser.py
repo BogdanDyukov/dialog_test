@@ -1,12 +1,21 @@
 from pathlib import Path
+import sys
 import re
 import json
 import json5
 import requests
-from yo import load_yo_dictionary, yoficate_text
-from emotion_descriptions import EMOTION_DESCRIPTIONS
-from character_names import NAME_TO_PREFIX
-from morph_analyzer import text_exceptions
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from dialogue_checker.yo import load_yo_dictionary, yoficate_text
+from dialogue_checker.emotion_descriptions import EMOTION_DESCRIPTIONS
+from dialogue_checker.character_names import NAME_TO_PREFIX
+from dialogue_checker.morph_analyzer import text_exceptions
+
+DATA_DIR = PROJECT_ROOT / "data"
+REPORTS_DIR = PROJECT_ROOT / "reports"
 
 def prepare_conf_text(text: str) -> str:
     # Удаляем комментарии
@@ -574,7 +583,7 @@ spell_mapping = []
 wrong_words = set()
 report_lines = []
 
-output_path = Path(f"yandex_errors.txt")
+output_path = REPORTS_DIR / "yandex_errors.txt"
 
 for cutscene in all_cutscenes:
     quest_id = cutscene["id"]
@@ -819,7 +828,7 @@ print("\n8 НАЛИЧИЕ 'Е' ВМЕСТО 'Ё' В name И text (ПРОГОН �
 
 found = False
 
-yo_dictionary = load_yo_dictionary("yo.dat")
+yo_dictionary = load_yo_dictionary(DATA_DIR / "yo.dat")
 
 for cutscene in all_cutscenes:
     quest_id = cutscene["id"]
@@ -863,7 +872,7 @@ if not found:
 
 
 
-from alena_skins import get_allowed_alena_skins
+from dialogue_checker.alena_skins import get_allowed_alena_skins
 
 print("\n12 ПРОВЕРКА СКИНА АЛЁНКИ В character (ДИАЛОГИ)")
 
@@ -1081,7 +1090,7 @@ for cutscene in all_cutscenes:
             "texts": texts
         })
 
-output_path = Path(f"cutscenes_thoughts.json")
+output_path = REPORTS_DIR / "cutscenes_thoughts.json"
 
 with open(output_path, "w", encoding="utf-8") as f:
     json.dump(
@@ -1128,7 +1137,7 @@ for cutscene in all_cutscenes:
         current_quest_texts
         and current_replica_count + replica_count > MAX_REPLICAS_PER_FILE
     ):
-        output_path = Path(f"cutscenes_texts_part_{file_index}.json")
+        output_path = REPORTS_DIR / f"cutscenes_texts_part_{file_index}.json"
 
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(
@@ -1148,7 +1157,7 @@ for cutscene in all_cutscenes:
     current_replica_count += replica_count
 
 if current_quest_texts:
-    output_path = Path(f"cutscenes_texts_part_{file_index}.json")
+    output_path = REPORTS_DIR / f"cutscenes_texts_part_{file_index}.json"
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(
@@ -1204,7 +1213,7 @@ for cutscene in all_cutscenes:
         "phrases": phrases
     })
 
-output_path = Path(f"cutscenes_texts_with_meta.json")
+output_path = REPORTS_DIR / "cutscenes_texts_with_meta.json"
 
 with open(output_path, "w", encoding="utf-8") as f:
     json.dump(

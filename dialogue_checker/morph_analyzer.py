@@ -1,5 +1,8 @@
 import json
+from pathlib import Path
 from pymorphy3 import MorphAnalyzer
+
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
 morph = MorphAnalyzer()
 
@@ -33,7 +36,7 @@ def build_spell_exceptions(entries):
     return result
 
 
-with open("spell_exceptions.json", "r", encoding="utf-8") as f:
+with open(DATA_DIR / "spell_exceptions.json", "r", encoding="utf-8") as f:
     spell_exceptions = json.load(f)
 
 common_exceptions = build_spell_exceptions(

@@ -1,7 +1,11 @@
 import codecs
 import re
+from pathlib import Path
 
-def load_yo_dictionary(dictionary_path="yo.dat"):
+DEFAULT_DICTIONARY_PATH = Path(__file__).resolve().parents[1] / "data" / "yo.dat"
+
+
+def load_yo_dictionary(dictionary_path=DEFAULT_DICTIONARY_PATH):
     dictionary = {}
 
     with codecs.open(dictionary_path, "r", "utf-8") as f:

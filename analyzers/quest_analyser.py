@@ -1,14 +1,22 @@
 # /Users/bogdan.dyukov/merge2/configs/quests/0001_name/0010.conf.js
 
 from pathlib import Path
+import sys
 import re
 import json5
 import json
-from yo import load_yo_dictionary, yoficate_text
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from dialogue_checker.yo import load_yo_dictionary, yoficate_text
 import requests
 from pymorphy3 import MorphAnalyzer
-from alena_skins import ALENA_SKINS, LOCATION_ALENA_SKINS, get_allowed_alena_skins
-from morph_analyzer import title_exceptions
+from dialogue_checker.alena_skins import ALENA_SKINS, LOCATION_ALENA_SKINS, get_allowed_alena_skins
+from dialogue_checker.morph_analyzer import title_exceptions
+
+DATA_DIR = PROJECT_ROOT / "data"
 
 n = int(input("Номер локации: "))
 
@@ -23,10 +31,6 @@ if not filepath.exists():
 with open(filepath, "r", encoding="utf-8") as f:
     text = f.read()
 
-# Удаляем комментарии
-text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
-text = re.sub(r"//.*", "", text)
-
 # Добавляем пропущенные запятые между полями
 text = re.sub(
     r'(".*?"|\d+|true|false|null|\]|\})\s*\n(\s*"[^"]+"\s*:)',
@@ -39,17 +43,25 @@ text = re.sub(r",\s*,+", ",", text)
 
 data = json5.loads(text)
 
-quests = [
-    {
-        "id": q["id"],
-        "price_money": q["price_money"],
-        "rewards": q["rewards"],
-        "character": q["character"],
-        "title": q["title"],
-        "cutscene": q["cutscene"]
-    }
-    for q in data["quests"]
-]
+quests = []
+
+for index, q in enumerate(data.get("quests", []), start=1):
+    if not isinstance(q, dict):
+        print(
+            f"\t- Квест #{index}: ожидался объект, "
+            f"получено {type(q).__name__}"
+        )
+        continue
+
+    quests.append({
+        "id": q.get("id"),
+        "source_position": index,
+        "price_money": q.get("price_money"),
+        "rewards": q.get("rewards") or [],
+        "character": q.get("character") or "",
+        "title": q.get("title") or "",
+        "cutscene": q.get("cutscene") or ""
+    })
 
 print("\n--- ФАЙЛ С НАЗВАНИЯМИ КАТСЦЕН И РЕВАРДАМИ ---")
 
@@ -57,17 +69,34 @@ print("\n--- ФАЙЛ С НАЗВАНИЯМИ КАТСЦЕН И РЕВАРДАМ
 
 
 
-print("\n1 НАЛИЧИЕ ПУСТЫХ ЗНАЧЕНИЙ (rewards, title и character, cutscene)")
+print("\n1 НАЛИЧИЕ ПУСТЫХ ЗНАЧЕНИЙ")
 
 found = False
 
 for quest in quests:
-    for field in ("rewards", "title", "character", "cutscene"):
+    for field in (
+        "id",
+        "price_money",
+        "rewards",
+        "title",
+        "character",
+        "cutscene",
+    ):
         value = quest.get(field)
 
-        if value is None or value == "" or value == []:
+        if (
+            value is None
+            or value == []
+            or (isinstance(value, str) and not value.strip())
+        ):
             found = True
-            print(f'\t- Квест {quest["id"]}: пустое поле "{field}"')
+            quest_label = quest["id"]
+            if quest_label is None:
+                quest_label = f"без id, позиция {quest['source_position']}"
+            print(
+                f'\t- Квест {quest_label}: '
+                f'пустое или отсутствующее поле "{field}"'
+            )
 
 if not found:
     print("\t- Не найдено")
@@ -104,7 +133,7 @@ print("\n3 НАЛИЧИЕ 'Е' ВМЕСТО 'Ë' В title (ËТИФИКАТОР)
 
 found = False
 
-yo_dictionary = load_yo_dictionary("yo.dat")
+yo_dictionary = load_yo_dictionary(DATA_DIR / "yo.dat")
 
 for quest in quests:
     title = quest["title"]
@@ -256,6 +285,19 @@ response = requests.post(
 response.raise_for_status()
 
 spell_results = response.json()
+
+if not isinstance(spell_results, list):
+    raise RuntimeError(
+        "Яндекс Спеллер вернул ответ неожиданного формата: "
+        f"ожидался список, получено {type(spell_results).__name__}"
+    )
+
+if len(spell_results) != len(quests):
+    raise RuntimeError(
+        "Яндекс Спеллер вернул неправильное количество результатов: "
+        f"отправлено заголовков — {len(quests)}, "
+        f"получено результатов — {len(spell_results)}"
+    )
 
 for quest, errors in zip(quests, spell_results):
     errors = [
