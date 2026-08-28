@@ -1259,15 +1259,18 @@ def suggest_emotion_description(emotion):
     )
 
 
-quest_texts_with_meta = []
+emotion_review_lines = []
 missing_emotions = set()
 
 for cutscene in all_cutscenes:
-    phrases = []
+    quest_id = cutscene["id"]
+    local_quest_number = quest_numbers[quest_id]
 
-    for dialog in cutscene["dialogs"]:
-        for cue in dialog:
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            name = cue.get("name", "")
             emotion = cue.get("emotion", "")
+            text = cue.get("text", "").replace("\n", " ")
             emotion_description = EMOTION_DESCRIPTIONS.get(emotion)
 
             if emotion_description is None:
@@ -1276,28 +1279,21 @@ for cutscene in all_cutscenes:
             else:
                 emotion_with_description = f"{emotion} — {emotion_description}"
 
-            phrases.append({
-                "name": cue.get("name", ""),
-                "emotion": emotion_with_description,
-                "text": cue.get("text", "").replace("\n", " ")
-            })
+            emotion_review_lines.append(
+                f"[{local_quest_number}:{dialog_index}:{cue_index}] "
+                f"{name} || {emotion_with_description} || {text}"
+            )
 
-    quest_texts_with_meta.append({
-        "id": cutscene["id"],
-        "phrases": phrases
-    })
+emotion_review_path = REPORTS_DIR / "cutscenes_emotions_for_review.txt"
 
-output_path = REPORTS_DIR / "cutscenes_texts_with_meta.json"
+with open(emotion_review_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(emotion_review_lines))
+    f.write("\n")
 
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(
-        quest_texts_with_meta,
-        f,
-        ensure_ascii=False,
-        indent=2
-    )
-
-print(f"\tСохранено: {output_path}, проверяй через нейронку на соответствие эмоции и реплики")
+print(
+    f"\tСохранено: {emotion_review_path}, "
+    f"проверяй через нейронку на соответствие эмоции и реплики"
+)
 
 if missing_emotions:
     print("\t- Нет описания для emotion:")
