@@ -36,6 +36,22 @@ def build_spell_exceptions(entries):
     return result
 
 
+def is_speller_false_positive(error):
+    word = error.get("word", "")
+    suggestions = error.get("s", [])
+
+    if not isinstance(word, str) or not isinstance(suggestions, list):
+        return False
+
+    normalized_word = word.casefold()
+
+    return any(
+        isinstance(suggestion, str)
+        and suggestion.casefold() == normalized_word
+        for suggestion in suggestions
+    )
+
+
 with open(DATA_DIR / "spell_exceptions.json", "r", encoding="utf-8") as f:
     spell_exceptions = json.load(f)
 

@@ -10,7 +10,10 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from dialogue_checker.yo import load_yo_dictionary, yoficate_text
-from dialogue_checker.morph_analyzer import text_exceptions
+from dialogue_checker.morph_analyzer import (
+    is_speller_false_positive,
+    text_exceptions,
+)
 
 DATA_DIR = PROJECT_ROOT / "data"
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -637,6 +640,7 @@ for start in range(0, len(spell_texts), BATCH_SIZE):
         errors = [
             error for error in errors
             if error.get("word", "").lower() not in text_exceptions
+            and not is_speller_false_positive(error)
         ]
 
         if not errors:

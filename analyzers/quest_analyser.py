@@ -17,7 +17,10 @@ from dialogue_checker.alena_skins import (
     ALENA_SKINS,
     get_expected_alena_skin_sequence,
 )
-from dialogue_checker.morph_analyzer import title_exceptions
+from dialogue_checker.morph_analyzer import (
+    is_speller_false_positive,
+    title_exceptions,
+)
 
 DATA_DIR = PROJECT_ROOT / "data"
 
@@ -364,6 +367,7 @@ for quest, errors in zip(quests, spell_results):
     errors = [
         error for error in errors
         if error.get("word", "").lower() not in title_exceptions
+        and not is_speller_false_positive(error)
     ]
 
     if not errors:
