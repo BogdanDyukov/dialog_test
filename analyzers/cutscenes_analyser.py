@@ -1162,39 +1162,38 @@ if not found:
 
 print("\nN РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА МЫСЛЕЙ")
 
-thought_dialogs = []
+thought_lines = []
 
 for cutscene in all_cutscenes:
-    texts = []
-    has_thought = False
+    quest_id = cutscene["id"]
+    local_quest_number = quest_numbers[quest_id]
+    has_thought = any(
+        cue.get("cue_type") == "THOUGHT_BUBBLE"
+        for dialog in cutscene["dialogs"]
+        for cue in dialog
+    )
 
-    for dialog in cutscene["dialogs"]:
-        for cue in dialog:
+    if not has_thought:
+        continue
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
             text = cue.get("text", "").replace("\n", " ")
 
             if cue.get("cue_type") == "THOUGHT_BUBBLE":
-                has_thought = True
-                text = f'(МЫСЛЬ) "{text}"'
+                text = f"(МЫСЛЬ) {text}"
 
-            texts.append(text)
+            thought_lines.append(
+                f"[{local_quest_number}:{dialog_index}:{cue_index}] {text}"
+            )
 
-    if has_thought:
-        thought_dialogs.append({
-            "id": cutscene["id"],
-            "texts": texts
-        })
+thoughts_path = REPORTS_DIR / "cutscenes_thoughts_for_review.txt"
 
-output_path = REPORTS_DIR / "cutscenes_thoughts.json"
+with open(thoughts_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(thought_lines))
+    f.write("\n")
 
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(
-        thought_dialogs,
-        f,
-        ensure_ascii=False,
-        indent=2
-    )
-
-print(f"\tСохранено: {output_path}, проверяй оформление мыслей через нейронку")
+print(f"\tСохранено: {thoughts_path}, проверяй оформление мыслей через нейронку")
 
 
 
@@ -1208,12 +1207,13 @@ review_lines = []
 
 for cutscene in all_cutscenes:
     quest_id = cutscene["id"]
+    local_quest_number = quest_numbers[quest_id]
 
     for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
         for cue_index, cue in enumerate(dialog, start=1):
             text = cue.get("text", "").replace("\n", " ")
             review_lines.append(
-                f"[{quest_id}:{dialog_index}:{cue_index}] {text}"
+                f"[{local_quest_number}:{dialog_index}:{cue_index}] {text}"
             )
 
 review_path = REPORTS_DIR / "cutscenes_texts_for_review.txt"
