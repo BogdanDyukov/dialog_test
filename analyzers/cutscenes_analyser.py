@@ -1271,6 +1271,30 @@ else:
         print(f"\t- {path}")
 
 
+review_lines = []
+
+for cutscene in all_cutscenes:
+    quest_id = cutscene["id"]
+
+    for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
+        for cue_index, cue in enumerate(dialog, start=1):
+            text = cue.get("text", "").replace("\n", " ")
+            review_lines.append(
+                f"[{quest_id}:{dialog_index}:{cue_index}] {text}"
+            )
+
+review_path = REPORTS_DIR / "cutscenes_texts_for_review.txt"
+
+with open(review_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(review_lines))
+    f.write("\n")
+
+print(
+    f"\tСохранён единый компактный файл: {review_path} "
+    f"({len(review_lines)} реплик)"
+)
+
+
 
 
 
