@@ -412,6 +412,10 @@ for cutscene in all_cutscenes:
             if re.search(r"\n[ \t]+", text):
                 issues.append("пробелы после \\n")
 
+            # Несколько пробелов или табов подряд
+            if re.search(r"[ \t]{2,}", text):
+                issues.append("два или более пробельных символа подряд")
+
             # Пробел перед знаком препинания
             if re.search(r"\s+[,.!?;:]", text):
                 issues.append("пробел перед знаком препинания")
