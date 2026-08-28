@@ -377,6 +377,18 @@ if not found:
 
 print("\n3 ФОРМАТНЫЕ И ТЕКСТОВЫЕ ПРОБЛЕМЫ В text")
 
+ALLOWED_TEXT_WRAPPER_TAGS = ["<i>"]
+
+
+def remove_allowed_text_tags(text):
+    for opening_tag in ALLOWED_TEXT_WRAPPER_TAGS:
+        tag_name = opening_tag[1:-1]
+        closing_tag = f"</{tag_name}>"
+        text = text.replace(opening_tag, "").replace(closing_tag, "")
+
+    return text
+
+
 found = False
 
 for cutscene in all_cutscenes:
@@ -385,6 +397,7 @@ for cutscene in all_cutscenes:
     for dialog_index, dialog in enumerate(cutscene["dialogs"], start=1):
         for cue_index, cue in enumerate(dialog, start=1):
             text = cue.get("text", "")
+            text_without_allowed_tags = remove_allowed_text_tags(text)
 
             issues = []
 
@@ -412,7 +425,7 @@ for cutscene in all_cutscenes:
                 issues.append("непарные кавычки")
 
             # Латиница
-            if re.search(r"[A-Za-z]", text):
+            if re.search(r"[A-Za-z]", text_without_allowed_tags):
                 issues.append("латиница")
 
             if issues:
