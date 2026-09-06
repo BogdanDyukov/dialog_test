@@ -656,7 +656,7 @@ for start in range(0, len(spell_texts), BATCH_SIZE):
     for info, errors in zip(batch_mapping, spell_results):
         errors = [
             error for error in errors
-            if error.get("word", "").lower() not in text_exceptions
+            if error.get("word", "").casefold() not in text_exceptions
             and not is_speller_false_positive(error)
         ]
 
@@ -696,11 +696,9 @@ else:
     report_lines.append("\n\n--- СЛОВА ДЛЯ ДОБАВЛЕНИЯ В spell_exceptions.json ---\n")
 
     for word in sorted_wrong_words:
-        report_lines.append("    {")
-        report_lines.append(f'      "word": "{word}",')
-        report_lines.append('      "gender": null,')
-        report_lines.append('      "number": null')
-        report_lines.append("    },")
+        report_lines.append(
+            f"    {json.dumps(word, ensure_ascii=False)},"
+        )
 
 with open(output_path, "w", encoding="utf-8") as f:
     f.write("\n".join(report_lines))

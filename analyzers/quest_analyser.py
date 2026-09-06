@@ -12,7 +12,6 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from dialogue_checker.yo import load_yo_dictionary, yoficate_text
 import requests
-from pymorphy3 import MorphAnalyzer
 from dialogue_checker.alena_skins import (
     ALENA_SKINS,
     get_expected_alena_skin_sequence,
@@ -366,7 +365,7 @@ if len(spell_results) != len(quests):
 for quest, errors in zip(quests, spell_results):
     errors = [
         error for error in errors
-        if error.get("word", "").lower() not in title_exceptions
+        if error.get("word", "").casefold() not in title_exceptions
         and not is_speller_false_positive(error)
     ]
 
