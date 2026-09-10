@@ -9,11 +9,21 @@
 - `reports/` — результаты работы анализаторов;
 - `scripts/` — вспомогательные и экспериментальные скрипты.
 
-Анализаторы запускаются из корня проекта:
+Общий интерактивный запуск из корня проекта:
 
 ```bash
-python3 analyzers/quest_analyser.py
-python3 analyzers/cutscenes_analyser.py
+python3 run_analyser.py
+```
+
+Сначала нужно выбрать, что проверять: диалоги, названия квестов или всё сразу,
+а затем ввести номер локации.
+
+Анализаторы также можно запускать отдельно. Номер локации разрешено передать
+аргументом или ввести после запуска:
+
+```bash
+python3 analyzers/quest_analyser.py 16
+python3 analyzers/cutscenes_analyser.py 16
 ```
 
 Также поддерживается запуск через `python3 -m analyzers.quest_analyser` и

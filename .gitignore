@@ -1,3 +1,4 @@
 .vscode
 venv
 reports
+__pycache__

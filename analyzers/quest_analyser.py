@@ -5,6 +5,13 @@ import sys
 import re
 import json5
 import json
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 v2 only supports OpenSSL.*",
+    module=r"urllib3(?:\.__init__)?",
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
@@ -23,7 +30,24 @@ from dialogue_checker.morph_analyzer import (
 
 DATA_DIR = PROJECT_ROOT / "data"
 
-n = int(input("Номер локации: "))
+
+def get_location_number():
+    value = sys.argv[1] if len(sys.argv) > 1 else input("Номер локации: ")
+
+    try:
+        location_number = int(value)
+    except ValueError:
+        print(f"Некорректный номер локации: {value}")
+        raise SystemExit(2)
+
+    if location_number < 1:
+        print("Номер локации должен быть больше нуля")
+        raise SystemExit(2)
+
+    return location_number
+
+
+n = get_location_number()
 
 filename = f"{n:04d}.conf.js"
 filepath = Path("/Users/bogdan.dyukov/merge2/configs/quests/0001_name") / filename
@@ -79,7 +103,7 @@ def format_quest_label(quest):
     return f"Квест {local_number} (id={quest_id})"
 
 
-print("\n--- ФАЙЛ С НАЗВАНИЯМИ КАТСЦЕН И РЕВАРДАМИ ---")
+print(f"\nФайл: {filepath}")
 
 
 

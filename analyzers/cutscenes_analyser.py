@@ -3,6 +3,14 @@ import sys
 import re
 import json
 import json5
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 v2 only supports OpenSSL.*",
+    module=r"urllib3(?:\.__init__)?",
+)
+
 import requests
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -121,7 +129,23 @@ def parse_cutscene_file(filepath: Path, cutscene_to_quest_id: dict):
     }
 
 
-n = int(input("Введите номер локации: "))
+def get_location_number():
+    value = sys.argv[1] if len(sys.argv) > 1 else input("Введите номер локации: ")
+
+    try:
+        location_number = int(value)
+    except ValueError:
+        print(f"Некорректный номер локации: {value}")
+        raise SystemExit(2)
+
+    if location_number < 1:
+        print("Номер локации должен быть больше нуля")
+        raise SystemExit(2)
+
+    return location_number
+
+
+n = get_location_number()
 
 cutscenes_dir = Path(
     f"/Users/bogdan.dyukov/merge2/configs/cutscenes/{n:04d}"
@@ -168,7 +192,7 @@ print(f"Всего реплик: {total_cues}")
 
 
 
-print("\n--- ФАЙЛ С ДИАЛОГАМИ КАТСЦЕН ---")
+print(f"\nФайлы: {cutscenes_dir}")
 
 
 
