@@ -1142,15 +1142,6 @@ for cutscene in all_cutscenes:
 
 emotion_review_path = REPORTS_DIR / "cutscenes_emotions_for_review.txt"
 
-with open(emotion_review_path, "w", encoding="utf-8") as f:
-    f.write("\n".join(emotion_review_lines))
-    f.write("\n")
-
-print(
-    f"\tСохранено: {emotion_review_path}, "
-    f"проверяй через нейронку на соответствие эмоции и реплики"
-)
-
 if missing_emotions:
     print("\t- Нет описания для emotion:")
     for emotion in sorted(missing_emotions):
@@ -1161,3 +1152,17 @@ if missing_emotions:
             ensure_ascii=False,
         )
         print(f"\t\t{json_emotion}: {json_description},")
+
+    print(
+        "\tФайл для проверки не сформирован. "
+        "Добавь описания эмоций и запусти анализатор повторно."
+    )
+else:
+    with open(emotion_review_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(emotion_review_lines))
+        f.write("\n")
+
+    print(
+        f"\tСохранено: {emotion_review_path}, "
+        f"проверяй через нейронку на соответствие эмоции и реплики"
+    )
