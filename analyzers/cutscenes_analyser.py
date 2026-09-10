@@ -691,13 +691,11 @@ if not found:
 else:
     sorted_wrong_words = sorted(wrong_words, key=str.casefold)
 
-    print("\n\t- " + ", ".join(sorted_wrong_words))
-
-    report_lines.append("\n\n--- СЛОВА ДЛЯ ДОБАВЛЕНИЯ В spell_exceptions.json ---\n")
+    print("\n\tСлова, которые можно добавить в spell_exceptions.json:")
 
     for word in sorted_wrong_words:
-        report_lines.append(
-            f"    {json.dumps(word, ensure_ascii=False)},"
+        print(
+            f"\t    {json.dumps(word, ensure_ascii=False)},"
         )
 
 with open(output_path, "w", encoding="utf-8") as f:
