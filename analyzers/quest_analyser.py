@@ -53,20 +53,31 @@ quests = []
 for index, q in enumerate(data.get("quests", []), start=1):
     if not isinstance(q, dict):
         print(
-            f"\t- Квест #{index}: ожидался объект, "
+            f"\t- Квест {index}: ожидался объект, "
             f"получено {type(q).__name__}"
         )
         continue
 
     quests.append({
         "id": q.get("id"),
-        "source_position": index,
+        "local_number": index,
         "price_money": q.get("price_money"),
         "rewards": q.get("rewards") or [],
         "character": q.get("character") or "",
         "title": q.get("title") or "",
         "cutscene": q.get("cutscene") or ""
     })
+
+
+def format_quest_label(quest):
+    local_number = quest["local_number"]
+    quest_id = quest["id"]
+
+    if quest_id is None:
+        return f"Квест {local_number} (без id)"
+
+    return f"Квест {local_number} (id={quest_id})"
+
 
 print("\n--- ФАЙЛ С НАЗВАНИЯМИ КАТСЦЕН И РЕВАРДАМИ ---")
 
@@ -95,11 +106,8 @@ for quest in quests:
             or (isinstance(value, str) and not value.strip())
         ):
             found = True
-            quest_label = quest["id"]
-            if quest_label is None:
-                quest_label = f"без id, позиция {quest['source_position']}"
             print(
-                f'\t- Квест {quest_label}: '
+                f'\t- {format_quest_label(quest)}: '
                 f'пустое или отсутствующее поле "{field}"'
             )
 
@@ -125,7 +133,7 @@ for quest in quests:
     ):
         found = True
         print(
-            f'\t- Квест {quest["id"]}: price_money={price_money!r}; '
+            f'\t- {format_quest_label(quest)}: price_money={price_money!r}; '
             "ожидалось целое число больше нуля"
         )
 
@@ -149,7 +157,8 @@ for quest in quests:
     if bad_chars:
         found = True
         print(
-            f'\t- Квест {quest["id"]}: title={repr(title)} содержит символы: {", ".join(repr(c) for c in bad_chars)}'
+            f'\t- {format_quest_label(quest)}: title={repr(title)} '
+            f'содержит символы: {", ".join(repr(c) for c in bad_chars)}'
         )
 
 if not found:
@@ -185,7 +194,7 @@ for quest in quests:
 
     if errors:
         found = True
-        print(f'\t- Квест {quest["id"]}: title={title!r}')
+        print(f'\t- {format_quest_label(quest)}: title={title!r}')
 
         for error in errors:
             print(f"\t\t- {error}")
@@ -208,7 +217,7 @@ for quest in quests:
     if title != yoficated:
         found = True
         print(
-            f'\t- Квест {quest["id"]}: "{title}" -> "{yoficated}"'
+            f'\t- {format_quest_label(quest)}: "{title}" -> "{yoficated}"'
         )
 
 if not found:
@@ -228,7 +237,7 @@ for quest in quests:
 
     if re.search(r"\bвс[её]\b", title, re.IGNORECASE):
         found = True
-        print(f'\t- Квест {quest["id"]}: "{title}"')
+        print(f'\t- {format_quest_label(quest)}: "{title}"')
 
 if not found:
     print("\t- Не найдено")
@@ -250,7 +259,8 @@ for quest in quests:
     if not has_xp_reward:
         found = True
         print(
-            f'\t- Квест {quest["id"]}: отсутствует XP ревард {{proto_id="@item/stock/xp", amount=15}}'
+            f'\t- {format_quest_label(quest)}: отсутствует XP ревард '
+            f'{{proto_id="@item/stock/xp", amount=15}}'
         )
 
 if not found:
@@ -286,14 +296,14 @@ else:
         if character not in known_skins:
             found = True
             print(
-                f'\t- Квест {quest["id"]}: неизвестный скин '
+                f'\t- {format_quest_label(quest)}: неизвестный скин '
                 f'Алёнки character="{character}"'
             )
             continue
 
         if not actual_sequence or actual_sequence[-1] != character:
             actual_sequence.append(character)
-            transition_quests.append(quest["id"])
+            transition_quests.append(format_quest_label(quest))
 
     actual_sequence = tuple(actual_sequence)
 
@@ -374,7 +384,7 @@ for quest, errors in zip(quests, spell_results):
 
     found = True
 
-    print(f'\t- Квест {quest["id"]}: "{quest["title"]}"')
+    print(f'\t- {format_quest_label(quest)}: "{quest["title"]}"')
 
     for error in errors:
         word = error.get("word")
