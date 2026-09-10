@@ -899,7 +899,6 @@ if unknown_names:
     new_candidates = {}
 
     print("\tНет соответствия для следующих name:")
-    print("\tОднозначные кандидаты для character_names.json:")
 
     for name, entries in sorted(unknown_names.items()):
         characters = sorted({
