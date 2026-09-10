@@ -952,7 +952,7 @@ if unknown_names:
             )
 
     print(
-        "\n\tПроверка не выполнена. Сначала добавь эти имена в data/character_names.json"
+        f"\n\tПроверка не выполнена. Сначала добавь эти имена в {CHARACTER_NAMES_PATH}"
     )
 
 else:
@@ -1153,7 +1153,8 @@ if missing_emotions:
 
     print(
         "\tФайл для проверки не сформирован. "
-        "Добавь описания эмоций и запусти анализатор повторно."
+        f"Добавь описания эмоций в {EMOTION_DESCRIPTIONS_PATH} "
+        "и запусти анализатор повторно."
     )
 else:
     with open(emotion_review_path, "w", encoding="utf-8") as f:
