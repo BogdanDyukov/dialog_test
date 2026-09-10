@@ -22,11 +22,15 @@ from dialogue_checker.morph_analyzer import (
     is_speller_false_positive,
     text_exceptions,
 )
+from dialogue_checker.config import load_project_paths
 
 DATA_DIR = PROJECT_ROOT / "data"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 CHARACTER_NAMES_PATH = DATA_DIR / "character_names.json"
 EMOTION_DESCRIPTIONS_PATH = DATA_DIR / "emotion_descriptions.json"
+PROJECT_PATHS = load_project_paths()
+QUEST_TITLES_DIR = PROJECT_PATHS["quest_titles_dir"]
+CUTSCENES_DIR = PROJECT_PATHS["cutscenes_dir"]
 
 with open(CHARACTER_NAMES_PATH, "r", encoding="utf-8") as f:
     NAME_TO_PREFIX = json.load(f)
@@ -57,7 +61,7 @@ def prepare_conf_text(text: str) -> str:
 
 def load_quest_cutscene_ids(location_id: int) -> dict:
     filename = f"{location_id:04d}.conf.js"
-    filepath = Path("/Users/bogdan.dyukov/merge2/configs/quests/0001_name") / filename
+    filepath = QUEST_TITLES_DIR / filename
 
     if not filepath.exists():
         raise FileNotFoundError(f"Файл квестов не найден: {filepath}")
@@ -146,9 +150,7 @@ def get_location_number():
 
 n = get_location_number()
 
-cutscenes_dir = Path(
-    f"/Users/bogdan.dyukov/merge2/configs/cutscenes/{n:04d}"
-)
+cutscenes_dir = CUTSCENES_DIR / f"{n:04d}"
 
 if not cutscenes_dir.exists():
     print(f"Папка не найдена: {cutscenes_dir}")

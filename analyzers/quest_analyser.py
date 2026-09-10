@@ -1,5 +1,3 @@
-# /Users/bogdan.dyukov/merge2/configs/quests/0001_name/0010.conf.js
-
 from pathlib import Path
 import sys
 import re
@@ -27,8 +25,11 @@ from dialogue_checker.morph_analyzer import (
     is_speller_false_positive,
     title_exceptions,
 )
+from dialogue_checker.config import load_project_paths
 
 DATA_DIR = PROJECT_ROOT / "data"
+PROJECT_PATHS = load_project_paths()
+QUEST_TITLES_DIR = PROJECT_PATHS["quest_titles_dir"]
 
 
 def get_location_number():
@@ -50,7 +51,7 @@ def get_location_number():
 n = get_location_number()
 
 filename = f"{n:04d}.conf.js"
-filepath = Path("/Users/bogdan.dyukov/merge2/configs/quests/0001_name") / filename
+filepath = QUEST_TITLES_DIR / filename
 
 if not filepath.exists():
     print(f"Файл не найден: {filepath}")

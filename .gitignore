@@ -2,3 +2,4 @@
 venv
 reports
 __pycache__
+config.json
