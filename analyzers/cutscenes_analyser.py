@@ -27,7 +27,6 @@ DATA_DIR = PROJECT_ROOT / "data"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 CHARACTER_NAMES_PATH = DATA_DIR / "character_names.json"
 EMOTION_DESCRIPTIONS_PATH = DATA_DIR / "emotion_descriptions.json"
-UNKNOWN_CHARACTER_NAMES_PATH = REPORTS_DIR / "unknown_character_names.json"
 
 with open(CHARACTER_NAMES_PATH, "r", encoding="utf-8") as f:
     NAME_TO_PREFIX = json.load(f)
@@ -909,7 +908,6 @@ for cutscene in all_cutscenes:
 
 if unknown_names:
     found = True
-    new_candidates = {}
 
     print("\tНет соответствия для следующих name:")
 
@@ -950,31 +948,9 @@ if unknown_names:
                 f'characters: {", ".join(characters) or "не указаны"}'
             )
 
-        new_candidates[name] = {
-            "suggested_prefix": suggested_prefix,
-            "characters": characters,
-            "emotions": emotions,
-        }
-
-    if UNKNOWN_CHARACTER_NAMES_PATH.exists():
-        with open(UNKNOWN_CHARACTER_NAMES_PATH, "r", encoding="utf-8") as f:
-            saved_candidates = json.load(f)
-    else:
-        saved_candidates = {}
-
-    saved_candidates.update(new_candidates)
-
-    with open(UNKNOWN_CHARACTER_NAMES_PATH, "w", encoding="utf-8") as f:
-        json.dump(
-            saved_candidates,
-            f,
-            ensure_ascii=False,
-            indent=2,
-            sort_keys=True,
-        )
-        f.write("\n")
-
-    print(f"\n\tКандидаты сохранены в {UNKNOWN_CHARACTER_NAMES_PATH}")
+    print(
+        "\n\tПроверка не выполнена. Сначала добавь эти имена в data/character_names.json"
+    )
 
 else:
     for cutscene in all_cutscenes:

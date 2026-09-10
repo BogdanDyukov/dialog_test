@@ -30,7 +30,7 @@ def ask_test_type():
 
 
 def ask_location_number():
-    value = input("\nНомер локации: ").strip()
+    value = input("Номер локации: ").strip()
 
     try:
         location_number = int(value)
