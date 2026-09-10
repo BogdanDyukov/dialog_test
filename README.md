@@ -9,7 +9,7 @@
 ```bash
 python3 -m venv venv
 source venv/bin/Activate
-pip freeze > requirements.txt
+pip install -r requirements.txt
 ```
 
 2) Первый запуск (из корня проекта):
