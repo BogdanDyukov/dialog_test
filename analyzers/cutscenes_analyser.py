@@ -1045,11 +1045,17 @@ for cutscene in all_cutscenes:
 
 thoughts_path = REPORTS_DIR / "cutscenes_thoughts_for_review.txt"
 
-with open(thoughts_path, "w", encoding="utf-8") as f:
-    f.write("\n".join(thought_lines))
-    f.write("\n")
+if thought_lines:
+    with open(thoughts_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(thought_lines))
+        f.write("\n")
 
-print(f"\tСохранено: {thoughts_path}, проверяй оформление мыслей через нейронку")
+    print(
+        f"\tСохранено: {thoughts_path}, "
+        "проверяй оформление мыслей через нейронку"
+    )
+else:
+    print("\t- Мысли не найдены, файл не сформирован")
 
 
 
