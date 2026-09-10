@@ -4,6 +4,8 @@
 
 1) Установка зависимостей:
 
+В корне проекта:
+
 ```bash
 python3 -m venv venv
 source venv/bin/Activate
