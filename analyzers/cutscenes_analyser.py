@@ -26,6 +26,7 @@ from dialogue_checker.config import load_project_paths
 
 DATA_DIR = PROJECT_ROOT / "data"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 CHARACTER_NAMES_PATH = DATA_DIR / "character_names.json"
 EMOTION_DESCRIPTIONS_PATH = DATA_DIR / "emotion_descriptions.json"
 PROJECT_PATHS = load_project_paths()

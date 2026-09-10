@@ -1,9 +1,12 @@
 from pathlib import Path
+import json
 import subprocess
 import sys
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+CONFIG_PATH = PROJECT_ROOT / "config.json"
+REPORTS_DIR = PROJECT_ROOT / "reports"
 
 ANALYZERS = {
     "1": [("Названия квестов и реварды", PROJECT_ROOT / "analyzers" / "quest_analyser.py")],
@@ -13,6 +16,27 @@ ANALYZERS = {
         ("Диалоги катсцен", PROJECT_ROOT / "analyzers" / "cutscenes_analyser.py"),
     ],
 }
+
+
+def ensure_config_exists():
+    if CONFIG_PATH.exists():
+        return True
+
+    with open(CONFIG_PATH, "w", encoding="utf-8") as file:
+        json.dump(
+            {
+                "quest_titles_dir": "",
+                "cutscenes_dir": "",
+            },
+            file,
+            ensure_ascii=False,
+            indent=2,
+        )
+        file.write("\n")
+
+    print(f"Создан конфиг: {CONFIG_PATH}")
+    print("Заполните конфиг и запустите анализатор снова.")
+    return False
 
 
 def ask_test_type():
@@ -46,6 +70,11 @@ def ask_location_number():
 
 
 def main():
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not ensure_config_exists():
+        return 1
+
     analyzers = ask_test_type()
     location_number = ask_location_number()
     exit_code = 0
