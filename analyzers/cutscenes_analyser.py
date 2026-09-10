@@ -197,12 +197,11 @@ for cutscene in all_cutscenes:
             else:
                 continue
 
-            for line_index, line in enumerate(text.split("\n"), start=1):
+            for line in text.split("\n"):
                 if len(line) > limit:
                     found = True
                     print(
-                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                        f'реплика {cue_index}, строка {line_index}: '
+                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
                         f'{cue_type_name} более {limit} символов — '
                         f'{len(line)} символов: "{line}"'
                     )
@@ -241,8 +240,7 @@ for cutscene in all_cutscenes:
             if len(lines) > limit:
                 found = True
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
                     f'{cue_type_name} содержит {len(lines)} строк '
                     f'(лимит {limit})'
                 )
@@ -281,8 +279,7 @@ for cutscene in all_cutscenes:
             if total_length > limit:
                 found = True
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
                     f'{cue_type_name} содержит {total_length} символов '
                     f'(лимит {limit})'
                 )
@@ -308,7 +305,7 @@ for cutscene in all_cutscenes:
         if replica_count > 20:
             found = True
             print(
-                f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}: '
+                f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
                 f'{replica_count} реплик (лимит 20)'
             )
 
@@ -356,8 +353,7 @@ for cutscene in all_cutscenes:
                 found = True
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: пустые поля: '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): пустые поля: '
                     f'{", ".join(empty_fields)}'
                 )
 
@@ -436,8 +432,8 @@ for cutscene in all_cutscenes:
                 found = True
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: {", ".join(issues)}'
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
+                    f'{", ".join(issues)}'
                 )
 
                 print(f'\t\t{text!r}')
@@ -481,8 +477,7 @@ for cutscene in all_cutscenes:
                 found = True
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: name={repr(name)} '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): name={repr(name)} '
                     f'содержит {", ".join(issues)}'
                 )
 
@@ -522,8 +517,7 @@ for cutscene in all_cutscenes:
                 found = True
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: name={repr(name)} '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): name={repr(name)} '
                     f'содержит символы: '
                     f'{", ".join(repr(c) for c in bad_chars)}'
                 )
@@ -557,8 +551,8 @@ for cutscene in all_cutscenes:
             if name == "Алёнка" and position != "LEFT":
                 found = True
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: Алёнка имеет position={position}, '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
+                    f'Алёнка имеет position={position}, '
                     f'ожидается LEFT'
                 )
 
@@ -567,8 +561,8 @@ for cutscene in all_cutscenes:
             elif character_positions[character] != position:
                 found = True
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}: персонаж {character} '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
+                    f'персонаж {character} '
                     f'сменил сторону {character_positions[character]} -> {position}'
                 )
 
@@ -586,7 +580,7 @@ for cutscene in all_cutscenes:
                 only_position = next(iter(all_positions))
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}: '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
                     f'все персонажи стоят на одной стороне ({only_position})'
                 )
 
@@ -666,9 +660,8 @@ for start in range(0, len(spell_texts), BATCH_SIZE):
         found = True
 
         report_lines.append(
-            f'\n\t- Квест {quest_numbers[info["quest_id"]]} (id={info["quest_id"]}), '
-            f'диалог {info["dialog_index"]}, '
-            f'реплика {info["cue_index"]}'
+            f'\n\t- Квест {quest_numbers[info["quest_id"]]} '
+            f'(id={info["quest_id"]})'
         )
 
         report_lines.append(f'\t\t{info["original_text"]!r}')
@@ -724,8 +717,7 @@ for cutscene in all_cutscenes:
                 found = True
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}, name: '
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), name: '
                     f'"{name}" -> "{yoficated_name}"'
                 )
 
@@ -736,8 +728,7 @@ for cutscene in all_cutscenes:
                 found = True
 
                 print(
-                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                    f'реплика {cue_index}, text:'
+                    f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), text:'
                 )
 
                 print(f'\t\t{text!r}')
@@ -786,8 +777,8 @@ else:
                 if character not in known_skins:
                     found = True
                     print(
-                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                        f'реплика {cue_index}: неизвестный скин Алёнки '
+                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
+                        f'неизвестный скин Алёнки '
                         f'character="{character}"'
                     )
                     continue
@@ -820,8 +811,6 @@ else:
                 quest_id = transition["quest_id"]
                 print(
                     f'\t\t- Квест {quest_numbers[quest_id]} (id={quest_id}), '
-                    f'диалог {transition["dialog_index"]}, '
-                    f'реплика {transition["cue_index"]}: '
                     f'{transition["character"]}'
                 )
 
@@ -999,8 +988,8 @@ else:
                     found = True
 
                     print(
-                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}), диалог {dialog_index}, '
-                        f'реплика {cue_index}: {", ".join(issues)}'
+                        f'\t- Квест {quest_numbers[quest_id]} (id={quest_id}): '
+                        f'{", ".join(issues)}'
                     )
 
                     print(f'\t\tname="{name}" -> {name_prefix}')
