@@ -773,7 +773,7 @@ from dialogue_checker.alena_skins import (
     get_expected_alena_skin_sequence,
 )
 
-print("\n12 ПРОВЕРКА ПОРЯДКА СКИНОВ АЛЁНКИ В character (ДИАЛОГИ)")
+print("\n9 ПРОВЕРКА ПОРЯДКА СКИНОВ АЛЁНКИ В character (ДИАЛОГИ)")
 
 found = False
 
@@ -847,7 +847,7 @@ if not found:
 
 
 
-print("\n13 НЕСООТВЕТСТВИЕ name, character И emotion")
+print("\n10 НЕСООТВЕТСТВИЕ name, character И emotion")
 
 UNKNOWN_NAME = "???"
 
@@ -1029,7 +1029,7 @@ if not found:
 
 
 
-print("\nN РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА МЫСЛЕЙ")
+print("\n11 РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА МЫСЛЕЙ")
 
 thought_lines = []
 
@@ -1076,7 +1076,7 @@ else:
 
 
 
-print("\nN РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА НА ПУНКТУАЦИЮ ВСЕХ text")
+print("\n12 РУЧНАЯ ПРОВЕРКА: ПРОВЕРКА НА ПУНКТУАЦИЮ ВСЕХ text")
 
 review_lines = []
 
@@ -1109,7 +1109,7 @@ print(
 
 
 
-print("\nN РУЧНАЯ ПРОВЕРКА: text С ПЕРСОНАЖЕМ И ЭМОЦИЕЙ")
+print("\n13 РУЧНАЯ ПРОВЕРКА: text С ПЕРСОНАЖЕМ И ЭМОЦИЕЙ")
 
 
 def suggest_emotion_description(emotion):
